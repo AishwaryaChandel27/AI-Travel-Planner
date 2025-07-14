@@ -4,206 +4,65 @@
 
 {% block content %}
 <div class="container">
+    <div class="mb-4">
+        <h2>
+            <i class="fas fa-{% if booking_type == 'flights' %}plane{% elif booking_type == 'hotels' %}bed{% else %}hiking{% endif %} me-3"></i>
+            Book {{ booking_type.title() }}
+        </h2>
+        <p class="text-muted">Choose from available {{ booking_type }} for your trip to {{ itinerary.destination }}</p>
+    </div>
+
     <div class="row">
-        <div class="col-12">
-            <div class="booking-header mb-4">
-                <h1>
+        {% for item in items %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
                     {% if booking_type == 'flights' %}
-                        <i class="fas fa-plane me-2"></i>Book Flights
+                        <h5 class="card-title">{{ item.airline }}</h5>
+                        <p class="card-text">
+                            <strong>Departure:</strong> {{ item.departure_time }}<br>
+                            <strong>Arrival:</strong> {{ item.arrival_time }}<br>
+                            <strong>Duration:</strong> {{ item.duration }}<br>
+                            <strong>Stops:</strong> {{ item.stops }}
+                        </p>
+                        <h4 class="text-success">${{ item.price }}</h4>
                     {% elif booking_type == 'hotels' %}
-                        <i class="fas fa-bed me-2"></i>Book Hotels
+                        <h5 class="card-title">{{ item.name }}</h5>
+                        <p class="card-text">
+                            <strong>Rating:</strong> {{ item.rating }}/5 ⭐<br>
+                            <strong>Location:</strong> {{ item.location }}<br>
+                            <strong>Amenities:</strong> {{ item.amenities|join(', ') }}
+                        </p>
+                        <h4 class="text-success">${{ item.price_per_night }}/night</h4>
+                        <small class="text-muted">Total: ${{ item.total_price }}</small>
                     {% else %}
-                        <i class="fas fa-star me-2"></i>Book Activities
+                        <h5 class="card-title">{{ item.name }}</h5>
+                        <p class="card-text">{{ item.description }}</p>
+                        <p class="text-muted">
+                            <strong>Duration:</strong> {{ item.duration }}<br>
+                            <strong>Price:</strong> ${{ item.price }}
+                        </p>
                     {% endif %}
-                </h1>
-                <p class="lead text-muted">{{ itinerary.destination }} - {{ itinerary.title }}</p>
-                <a href="{{ url_for('itinerary') }}" class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>Back to Itinerary
-                </a>
-            </div>
-
-            {% if booking_type == 'flights' %}
-            <!-- Flight Booking -->
-            <div class="flights-section">
-                {% for flight in items %}
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-md-8">
-                                <div class="flight-info">
-                                    <h5 class="mb-1">{{ flight.airline }} - {{ flight.flight_number }}</h5>
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <strong>{{ flight.departure_time }}</strong>
-                                            <div class="text-muted">{{ flight.origin }}</div>
-                                        </div>
-                                        <div class="col-md-4 text-center">
-                                            <div class="flight-duration">
-                                                <i class="fas fa-plane me-2"></i>{{ flight.duration }}
-                                            </div>
-                                            {% if flight.stops > 0 %}
-                                            <small class="text-warning">{{ flight.stops }} stop(s)</small>
-                                            {% else %}
-                                            <small class="text-success">Direct flight</small>
-                                            {% endif %}
-                                        </div>
-                                        <div class="col-md-4 text-end">
-                                            <strong>{{ flight.arrival_time }}</strong>
-                                            <div class="text-muted">{{ flight.destination }}</div>
-                                        </div>
-                                    </div>
-                                    <div class="mt-2">
-                                        <small class="text-muted">
-                                            Aircraft: {{ flight.aircraft }} | 
-                                            Seats Available: {{ flight.seats_available }}
-                                        </small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4 text-end">
-                                <div class="price-info">
-                                    <h4 class="text-primary mb-1">${{ flight.price }}</h4>
-                                    <small class="text-muted">{{ flight.class }}</small>
-                                </div>
-                                <form method="POST" action="{{ url_for('confirm_booking') }}" class="mt-2">
-                                    <input type="hidden" name="booking_type" value="flights">
-                                    <input type="hidden" name="item_id" value="{{ flight.id }}">
-                                    <input type="hidden" name="item_details" value="{{ flight|tojson }}">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-credit-card me-2"></i>Book Now
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
                 </div>
-                {% endfor %}
-            </div>
-
-            {% elif booking_type == 'hotels' %}
-            <!-- Hotel Booking -->
-            <div class="hotels-section">
-                <div class="row">
-                    {% for hotel in items %}
-                    <div class="col-md-6 mb-4">
-                        <div class="card h-100">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ hotel.name }}</h5>
-                                <p class="card-text">
-                                    <i class="fas fa-map-marker-alt me-2"></i>{{ hotel.address }}
-                                </p>
-                                <div class="hotel-rating mb-2">
-                                    <span class="badge bg-success">{{ hotel.rating }}/5</span>
-                                    <small class="text-muted ms-2">{{ hotel.distance_city_center }} from city center</small>
-                                </div>
-                                <div class="amenities mb-3">
-                                    {% for amenity in hotel.amenities %}
-                                    <span class="badge bg-secondary me-1">{{ amenity }}</span>
-                                    {% endfor %}
-                                </div>
-                                <div class="room-info mb-3">
-                                    <strong>{{ hotel.room_type }}</strong>
-                                    <div class="text-muted">{{ hotel.cancellation }}</div>
-                                </div>
-                                <div class="pricing">
-                                    <h5 class="text-primary mb-1">${{ hotel.total_price }}</h5>
-                                    <small class="text-muted">${{ hotel.price_per_night }} per night</small>
-                                </div>
-                            </div>
-                            <div class="card-footer">
-                                <form method="POST" action="{{ url_for('confirm_booking') }}">
-                                    <input type="hidden" name="booking_type" value="hotels">
-                                    <input type="hidden" name="item_id" value="{{ hotel.id }}">
-                                    <input type="hidden" name="item_details" value="{{ hotel|tojson }}">
-                                    <button type="submit" class="btn btn-primary w-100">
-                                        <i class="fas fa-credit-card me-2"></i>Book This Hotel
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
+                <div class="card-footer">
+                    <form method="POST" action="{{ url_for('confirm_booking') }}">
+                        <input type="hidden" name="booking_type" value="{{ booking_type }}">
+                        <input type="hidden" name="item_id" value="{{ item.id }}">
+                        <input type="hidden" name="item_details" value="{{ item|tojson }}">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-check me-2"></i>Book Now
+                        </button>
+                    </form>
                 </div>
             </div>
-
-            {% else %}
-            <!-- Activities Booking -->
-            <div class="activities-section">
-                <div class="row">
-                    {% for activity in items %}
-                    <div class="col-md-6 mb-4">
-                        <div class="card h-100">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ activity.name }}</h5>
-                                <p class="card-text">{{ activity.description }}</p>
-                                <div class="activity-details mb-3">
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <small class="text-muted">
-                                                <i class="fas fa-clock me-1"></i>{{ activity.duration }}
-                                            </small>
-                                        </div>
-                                        <div class="col-6">
-                                            <small class="text-muted">
-                                                <i class="fas fa-users me-1"></i>{{ activity.group_size }}
-                                            </small>
-                                        </div>
-                                    </div>
-                                    <div class="mt-2">
-                                        <small class="text-muted">
-                                            <i class="fas fa-map-marker-alt me-1"></i>{{ activity.location }}
-                                        </small>
-                                    </div>
-                                </div>
-                                <div class="includes mb-3">
-                                    <h6>Includes:</h6>
-                                    {% for include in activity.includes %}
-                                    <span class="badge bg-info me-1">{{ include }}</span>
-                                    {% endfor %}
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h5 class="text-primary mb-0">${{ activity.price }}</h5>
-                                        <small class="text-muted">per person</small>
-                                    </div>
-                                    <div class="text-end">
-                                        <div class="rating mb-1">
-                                            <span class="badge bg-warning">
-                                                <i class="fas fa-star me-1"></i>{{ activity.rating }}
-                                            </span>
-                                        </div>
-                                        <small class="text-muted">{{ activity.difficulty }}</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-footer">
-                                <form method="POST" action="{{ url_for('confirm_booking') }}">
-                                    <input type="hidden" name="booking_type" value="activities">
-                                    <input type="hidden" name="item_id" value="{{ activity.id }}">
-                                    <input type="hidden" name="item_details" value="{{ activity|tojson }}">
-                                    <button type="submit" class="btn btn-primary w-100">
-                                        <i class="fas fa-credit-card me-2"></i>Book This Activity
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
-
-            {% if not items %}
-            <div class="text-center py-5">
-                <i class="fas fa-search fa-3x text-muted mb-3"></i>
-                <h4>No {{ booking_type }} found</h4>
-                <p class="text-muted">We couldn't find any {{ booking_type }} for your destination. Please try again later.</p>
-                <a href="{{ url_for('itinerary') }}" class="btn btn-primary">
-                    <i class="fas fa-arrow-left me-2"></i>Back to Itinerary
-                </a>
-            </div>
-            {% endif %}
         </div>
+        {% endfor %}
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="{{ url_for('itinerary') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Itinerary
+        </a>
     </div>
 </div>
 {% endblock %}

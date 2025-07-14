@@ -6,289 +6,164 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-lg-8">
-            <h1 class="text-center mb-4">
-                <i class="fas fa-user-cog me-2"></i>Travel Preferences
-            </h1>
-            <p class="text-center text-muted mb-5">
-                Tell us about your travel preferences so we can create the perfect itinerary for you.
-            </p>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-map-marked-alt me-2"></i>
+                        Tell us about your dream trip
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" class="needs-validation" novalidate>
+                        <!-- Destination Country -->
+                        <div class="mb-4">
+                            <label for="destination_country" class="form-label">
+                                <i class="fas fa-globe me-2"></i>Which country would you like to visit?
+                            </label>
+                            <select class="form-select" id="destination_country" name="destination_country" required>
+                                <option value="">Choose a country...</option>
+                                <option value="Japan">Japan</option>
+                                <option value="Thailand">Thailand</option>
+                                <option value="India">India</option>
+                                <option value="United Kingdom">United Kingdom</option>
+                                <option value="France">France</option>
+                                <option value="Italy">Italy</option>
+                                <option value="Spain">Spain</option>
+                                <option value="Germany">Germany</option>
+                                <option value="Australia">Australia</option>
+                                <option value="United States">United States</option>
+                            </select>
+                        </div>
 
-            <form method="POST">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">
-                            <i class="fas fa-info-circle me-2"></i>Basic Information
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-3">
+                        <!-- Travel Dates -->
+                        <div class="row mb-4">
                             <div class="col-md-6">
-                                <label for="destination_country" class="form-label">Destination Country</label>
-                                <select class="form-select" id="destination_country" name="destination_country" required>
-                                    <option value="">Select a country</option>
-                                    <option value="United States">United States</option>
-                                    <option value="Canada">Canada</option>
-                                    <option value="United Kingdom">United Kingdom</option>
-                                    <option value="France">France</option>
-                                    <option value="Germany">Germany</option>
-                                    <option value="Italy">Italy</option>
-                                    <option value="Spain">Spain</option>
-                                    <option value="Japan">Japan</option>
-                                    <option value="Thailand">Thailand</option>
-                                    <option value="India">India</option>
-                                    <option value="China">China</option>
-                                    <option value="Australia">Australia</option>
-                                    <option value="Brazil">Brazil</option>
-                                    <option value="Argentina">Argentina</option>
-                                    <option value="South Africa">South Africa</option>
-                                    <option value="United Arab Emirates">United Arab Emirates</option>
-                                </select>
+                                <label for="start_date" class="form-label">
+                                    <i class="fas fa-calendar-alt me-2"></i>Start Date
+                                </label>
+                                <input type="date" class="form-control" id="start_date" name="start_date" required>
                             </div>
                             <div class="col-md-6">
-                                <label for="budget_type" class="form-label">Budget Type</label>
+                                <label for="end_date" class="form-label">
+                                    <i class="fas fa-calendar-alt me-2"></i>End Date
+                                </label>
+                                <input type="date" class="form-control" id="end_date" name="end_date" required>
+                            </div>
+                        </div>
+
+                        <!-- Budget -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="budget_type" class="form-label">
+                                    <i class="fas fa-dollar-sign me-2"></i>Budget Type
+                                </label>
                                 <select class="form-select" id="budget_type" name="budget_type" required>
-                                    <option value="">Select budget type</option>
+                                    <option value="">Choose budget type...</option>
                                     <option value="budget">Budget Traveler</option>
-                                    <option value="mid_range" selected>Mid-Range</option>
+                                    <option value="mid_range">Mid-Range</option>
                                     <option value="luxury">Luxury</option>
                                     <option value="ultra_luxury">Ultra Luxury</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label for="budget" class="form-label">Daily Budget</label>
-                                <div class="input-group">
-                                    <span class="input-group-text" id="currency-symbol">$</span>
-                                    <input type="number" class="form-control" id="budget" name="budget" 
-                                           min="20" max="2000" step="10" required value="150">
-                                    <span class="input-group-text" id="currency-code">USD</span>
-                                </div>
-                                <div class="form-text" id="budget-description">
-                                    Mid-range traveler - 3-star hotels, casual dining, mix of transport
-                                </div>
-                                <div class="form-text" id="budget-range-info" style="display: none;">
-                                    <small class="text-info">
-                                        <i class="fas fa-info-circle me-1"></i>
-                                        <span id="budget-range-text"></span>
-                                    </small>
-                                </div>
+                                <label for="budget" class="form-label">
+                                    Daily Budget (USD)
+                                </label>
+                                <input type="number" class="form-control" id="budget" name="budget" min="20" max="2000" value="100" required>
                             </div>
-                            <div class="col-md-6">
-                                <label for="group_size" class="form-label">Group Size</label>
-                                <select class="form-select" id="group_size" name="group_size" required>
-                                    <option value="1">Solo (1 person)</option>
-                                    <option value="2" selected>Couple (2 people)</option>
-                                    <option value="3">Small Group (3-4 people)</option>
-                                    <option value="5">Large Group (5+ people)</option>
-                                </select>
-                            </div>
-                            <div class="col-12">
-                                <div class="country-info" id="country-info" style="display: none;">
-                                    <div class="alert alert-info">
-                                        <h6><i class="fas fa-info-circle me-2"></i>Country Information</h6>
-                                        <div id="country-details"></div>
+                        </div>
+
+                        <!-- Group Size -->
+                        <div class="mb-4">
+                            <label for="group_size" class="form-label">
+                                <i class="fas fa-users me-2"></i>Group Size
+                            </label>
+                            <select class="form-select" id="group_size" name="group_size" required>
+                                <option value="">Choose group size...</option>
+                                <option value="1">Solo Travel</option>
+                                <option value="2">Couple</option>
+                                <option value="3">Small Group (3)</option>
+                                <option value="4">Family (4)</option>
+                                <option value="5">Group (5+)</option>
+                            </select>
+                        </div>
+
+                        <!-- Interests -->
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-heart me-2"></i>What interests you? (Select all that apply)
+                            </label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="culture" id="culture" name="interests">
+                                        <label class="form-check-label" for="culture">Culture & History</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="food" id="food" name="interests">
+                                        <label class="form-check-label" for="food">Food & Cuisine</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="adventure" id="adventure" name="interests">
+                                        <label class="form-check-label" for="adventure">Adventure & Outdoor</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="shopping" id="shopping" name="interests">
+                                        <label class="form-check-label" for="shopping">Shopping</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="nature" id="nature" name="interests">
+                                        <label class="form-check-label" for="nature">Nature & Wildlife</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="nightlife" id="nightlife" name="interests">
+                                        <label class="form-check-label" for="nightlife">Nightlife</label>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <label for="start_date" class="form-label">Start Date</label>
-                                <input type="date" class="form-control" id="start_date" name="start_date" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="end_date" class="form-label">End Date</label>
-                                <input type="date" class="form-control" id="end_date" name="end_date" required>
-                            </div>
                         </div>
-                    </div>
-                </div>
 
-                <div class="card mt-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">
-                            <i class="fas fa-heart me-2"></i>Interests & Activities
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="text-muted mb-3">Select all that interest you:</p>
-                        <div class="row g-3">
+                        <!-- Accommodation -->
+                        <div class="row mb-4">
                             <div class="col-md-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="adventure" id="adventure" name="interests">
-                                    <label class="form-check-label" for="adventure">
-                                        <i class="fas fa-mountain me-2"></i>Adventure & Outdoor
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="culture" id="culture" name="interests">
-                                    <label class="form-check-label" for="culture">
-                                        <i class="fas fa-university me-2"></i>Culture & History
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="food" id="food" name="interests">
-                                    <label class="form-check-label" for="food">
-                                        <i class="fas fa-utensils me-2"></i>Food & Dining
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="nature" id="nature" name="interests">
-                                    <label class="form-check-label" for="nature">
-                                        <i class="fas fa-leaf me-2"></i>Nature & Wildlife
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="nightlife" id="nightlife" name="interests">
-                                    <label class="form-check-label" for="nightlife">
-                                        <i class="fas fa-cocktail me-2"></i>Nightlife & Entertainment
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="shopping" id="shopping" name="interests">
-                                    <label class="form-check-label" for="shopping">
-                                        <i class="fas fa-shopping-bag me-2"></i>Shopping
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="relaxation" id="relaxation" name="interests">
-                                    <label class="form-check-label" for="relaxation">
-                                        <i class="fas fa-spa me-2"></i>Relaxation & Wellness
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="art" id="art" name="interests">
-                                    <label class="form-check-label" for="art">
-                                        <i class="fas fa-palette me-2"></i>Art & Museums
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card mt-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">
-                            <i class="fas fa-bed me-2"></i>Accommodation & Transport
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label for="accommodation_type" class="form-label">Accommodation Preference</label>
+                                <label for="accommodation_type" class="form-label">
+                                    <i class="fas fa-bed me-2"></i>Accommodation Preference
+                                </label>
                                 <select class="form-select" id="accommodation_type" name="accommodation_type" required>
-                                    <option value="hotel" selected>Hotel</option>
+                                    <option value="">Choose accommodation...</option>
+                                    <option value="hotel">Hotel</option>
                                     <option value="hostel">Hostel</option>
-                                    <option value="airbnb">Airbnb/Vacation Rental</option>
                                     <option value="resort">Resort</option>
-                                    <option value="boutique">Boutique Hotel</option>
-                                    <option value="budget">Budget Hotel</option>
+                                    <option value="apartment">Apartment/Airbnb</option>
+                                    <option value="guesthouse">Guesthouse</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label for="transport_preference" class="form-label">Transport Preference</label>
+                                <label for="transport_preference" class="form-label">
+                                    <i class="fas fa-plane me-2"></i>Transport Preference
+                                </label>
                                 <select class="form-select" id="transport_preference" name="transport_preference" required>
-                                    <option value="public_transport" selected>Public Transport</option>
+                                    <option value="">Choose transport...</option>
+                                    <option value="public_transport">Public Transport</option>
                                     <option value="rental_car">Rental Car</option>
                                     <option value="taxi_rideshare">Taxi/Rideshare</option>
                                     <option value="walking">Walking</option>
                                     <option value="bicycle">Bicycle</option>
-                                    <option value="mixed">Mixed Options</option>
                                 </select>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        <i class="fas fa-magic me-2"></i>Get AI Recommendations
-                    </button>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-magic me-2"></i>Get AI Recommendations
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
-
-<script>
-// Country and budget data
-const countryData = {
-    'United States': {currency: 'USD', symbol: '$', budgets: {budget: {min: 80, max: 150}, mid_range: {min: 150, max: 300}, luxury: {min: 300, max: 800}, ultra_luxury: {min: 800, max: 2000}}, bestTime: 'Spring (March-May) and Fall (September-November)', visa: 'ESTA required for most visitors'},
-    'Canada': {currency: 'CAD', symbol: 'C$', budgets: {budget: {min: 60, max: 120}, mid_range: {min: 120, max: 250}, luxury: {min: 250, max: 600}, ultra_luxury: {min: 600, max: 1500}}, bestTime: 'Summer (June-August) for most regions', visa: 'eTA required for most visitors'},
-    'United Kingdom': {currency: 'GBP', symbol: '£', budgets: {budget: {min: 40, max: 70}, mid_range: {min: 70, max: 160}, luxury: {min: 160, max: 400}, ultra_luxury: {min: 400, max: 1000}}, bestTime: 'Late spring to early autumn (May-September)', visa: 'Tourist visa required for most non-EU visitors'},
-    'France': {currency: 'EUR', symbol: '€', budgets: {budget: {min: 55, max: 90}, mid_range: {min: 90, max: 200}, luxury: {min: 200, max: 500}, ultra_luxury: {min: 500, max: 1400}}, bestTime: 'Late spring to early autumn (May-September)', visa: 'Schengen visa required for most non-EU visitors'},
-    'Germany': {currency: 'EUR', symbol: '€', budgets: {budget: {min: 50, max: 80}, mid_range: {min: 80, max: 180}, luxury: {min: 180, max: 400}, ultra_luxury: {min: 400, max: 1000}}, bestTime: 'Late spring to early autumn (May-September)', visa: 'Schengen visa required for most non-EU visitors'},
-    'Italy': {currency: 'EUR', symbol: '€', budgets: {budget: {min: 55, max: 95}, mid_range: {min: 95, max: 200}, luxury: {min: 200, max: 500}, ultra_luxury: {min: 500, max: 1300}}, bestTime: 'Late spring to early autumn (May-September)', visa: 'Schengen visa required for most non-EU visitors'},
-    'Spain': {currency: 'EUR', symbol: '€', budgets: {budget: {min: 45, max: 80}, mid_range: {min: 80, max: 160}, luxury: {min: 160, max: 400}, ultra_luxury: {min: 400, max: 1000}}, bestTime: 'Spring (March-May) and Fall (September-November)', visa: 'Schengen visa required for most non-EU visitors'},
-    'Japan': {currency: 'JPY', symbol: '¥', budgets: {budget: {min: 8000, max: 12000}, mid_range: {min: 12000, max: 25000}, luxury: {min: 25000, max: 60000}, ultra_luxury: {min: 60000, max: 150000}}, bestTime: 'Spring (March-May) and Fall (September-November)', visa: 'Visa-free for many countries (90 days)'},
-    'Thailand': {currency: 'THB', symbol: '฿', budgets: {budget: {min: 800, max: 1500}, mid_range: {min: 1500, max: 3500}, luxury: {min: 3500, max: 8000}, ultra_luxury: {min: 8000, max: 25000}}, bestTime: 'Cool season (November-February)', visa: 'Visa-free for many countries (30 days)'},
-    'India': {currency: 'INR', symbol: '₹', budgets: {budget: {min: 1500, max: 3000}, mid_range: {min: 3000, max: 7000}, luxury: {min: 7000, max: 20000}, ultra_luxury: {min: 20000, max: 60000}}, bestTime: 'Winter (October-March)', visa: 'Tourist visa required for most visitors'},
-    'China': {currency: 'CNY', symbol: '¥', budgets: {budget: {min: 30, max: 60}, mid_range: {min: 60, max: 150}, luxury: {min: 150, max: 400}, ultra_luxury: {min: 400, max: 1000}}, bestTime: 'Spring (April-June) and Fall (September-November)', visa: 'Tourist visa required for most visitors'},
-    'Australia': {currency: 'AUD', symbol: 'A$', budgets: {budget: {min: 70, max: 120}, mid_range: {min: 120, max: 250}, luxury: {min: 250, max: 600}, ultra_luxury: {min: 600, max: 1500}}, bestTime: 'Spring (September-November) and Fall (March-May)', visa: 'ETA required for most visitors'},
-    'Brazil': {currency: 'BRL', symbol: 'R$', budgets: {budget: {min: 30, max: 60}, mid_range: {min: 60, max: 140}, luxury: {min: 140, max: 350}, ultra_luxury: {min: 350, max: 900}}, bestTime: 'Fall and Winter (April-September)', visa: 'Visa required for many countries'},
-    'Argentina': {currency: 'ARS', symbol: '$', budgets: {budget: {min: 25, max: 50}, mid_range: {min: 50, max: 120}, luxury: {min: 120, max: 300}, ultra_luxury: {min: 300, max: 800}}, bestTime: 'Fall and Spring (March-May, September-November)', visa: 'Visa-free for many countries'},
-    'South Africa': {currency: 'ZAR', symbol: 'R', budgets: {budget: {min: 25, max: 50}, mid_range: {min: 50, max: 120}, luxury: {min: 120, max: 300}, ultra_luxury: {min: 300, max: 800}}, bestTime: 'Fall and Spring (March-May, September-November)', visa: 'Visa-free for many countries'},
-    'United Arab Emirates': {currency: 'AED', symbol: 'د.إ', budgets: {budget: {min: 60, max: 100}, mid_range: {min: 100, max: 250}, luxury: {min: 250, max: 600}, ultra_luxury: {min: 600, max: 2000}}, bestTime: 'Winter (October-April)', visa: 'Visa on arrival for many countries'}
-};
-
-// Update budget based on country and budget type
-function updateBudget() {
-    const country = document.getElementById('destination_country').value;
-    const budgetType = document.getElementById('budget_type').value;
-    
-    if (country && budgetType && countryData[country]) {
-        const data = countryData[country];
-        const budgetRange = data.budgets[budgetType];
-        
-        // Update currency symbol and code
-        document.getElementById('currency-symbol').textContent = data.symbol;
-        document.getElementById('currency-code').textContent = data.currency;
-        
-        // Update budget input
-        const budgetInput = document.getElementById('budget');
-        budgetInput.min = budgetRange.min;
-        budgetInput.max = budgetRange.max;
-        budgetInput.value = Math.round((budgetRange.min + budgetRange.max) / 2);
-        
-        // Show budget range info
-        document.getElementById('budget-range-info').style.display = 'block';
-        document.getElementById('budget-range-text').textContent = 
-            `Typical ${budgetType.replace('_', ' ')} range: ${data.symbol}${budgetRange.min} - ${data.symbol}${budgetRange.max} ${data.currency}`;
-        
-        // Update budget description
-        const descriptions = {
-            budget: 'Budget traveler - hostels, local food, public transport',
-            mid_range: 'Mid-range - hotels, restaurants, mix of transport',
-            luxury: 'Luxury - boutique hotels, fine dining, private tours',
-            ultra_luxury: 'Ultra luxury - exclusive hotels, premium experiences'
-        };
-        document.getElementById('budget-description').textContent = descriptions[budgetType];
-        
-        // Show country info
-        document.getElementById('country-info').style.display = 'block';
-        document.getElementById('country-details').innerHTML = `
-            <strong>Currency:</strong> ${data.currency} (${data.symbol}) <br>
-            <strong>Best Time to Visit:</strong> ${data.bestTime} <br>
-            <strong>Visa Requirements:</strong> ${data.visa} <br>
-            <strong>Budget Range:</strong> ${data.symbol}${budgetRange.min} - ${data.symbol}${budgetRange.max} ${data.currency} per day
-        `;
-    } else {
-        document.getElementById('country-info').style.display = 'none';
-        document.getElementById('budget-range-info').style.display = 'none';
-    }
-}
-
-// Event listeners
-document.getElementById('destination_country').addEventListener('change', updateBudget);
-document.getElementById('budget_type').addEventListener('change', updateBudget);
-
-// Set minimum date to today
-document.getElementById('start_date').min = new Date().toISOString().split('T')[0];
-document.getElementById('end_date').min = new Date().toISOString().split('T')[0];
-
-// Update end date minimum when start date changes
-document.getElementById('start_date').addEventListener('change', function() {
-    document.getElementById('end_date').min = this.value;
-});
-</script>
 {% endblock %}

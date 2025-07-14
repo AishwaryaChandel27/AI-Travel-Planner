@@ -413,3 +413,142 @@ def suggest_daily_budget(country_name, budget_type="mid_range"):
             "currency": COUNTRY_DATA[country_name]["currency"]
         }
     return None
+"""
+Country data and information for the AI Travel Planner
+"""
+
+def get_country_info(country):
+    """Get country-specific information."""
+    country_data = {
+        'Japan': {
+            'currency': 'JPY',
+            'language': 'Japanese',
+            'best_time': 'Spring (March-May) and Fall (September-November)',
+            'cultural_notes': 'Bow when greeting, remove shoes indoors, be quiet on public transport',
+            'visa_info': 'Tourist visa required for most countries'
+        },
+        'Thailand': {
+            'currency': 'THB',
+            'language': 'Thai',
+            'best_time': 'Cool season (November-February)',
+            'cultural_notes': 'Dress modestly at temples, respect the monarchy, remove shoes when entering homes',
+            'visa_info': 'Visa on arrival or visa exemption for many countries'
+        },
+        'India': {
+            'currency': 'INR',
+            'language': 'Hindi/English',
+            'best_time': 'Winter (October-March)',
+            'cultural_notes': 'Dress conservatively, use right hand for eating, respect religious customs',
+            'visa_info': 'e-Visa available for most countries'
+        },
+        'United Kingdom': {
+            'currency': 'GBP',
+            'language': 'English',
+            'best_time': 'Late spring to early autumn (May-September)',
+            'cultural_notes': 'Queue politely, respect personal space, tipping 10-15% at restaurants',
+            'visa_info': 'Check visa requirements based on nationality'
+        },
+        'France': {
+            'currency': 'EUR',
+            'language': 'French',
+            'best_time': 'Late spring to early autumn (May-September)',
+            'cultural_notes': 'Greet with bonjour/bonsoir, dress well, dining etiquette important',
+            'visa_info': 'Schengen visa for non-EU citizens'
+        },
+        'Italy': {
+            'currency': 'EUR',
+            'language': 'Italian',
+            'best_time': 'Spring (April-June) and Fall (September-October)',
+            'cultural_notes': 'Dress well, especially at religious sites, lunch is sacred time',
+            'visa_info': 'Schengen visa for non-EU citizens'
+        },
+        'Spain': {
+            'currency': 'EUR',
+            'language': 'Spanish',
+            'best_time': 'Spring (March-May) and Fall (September-November)',
+            'cultural_notes': 'Late dining times, siesta culture, dress smartly',
+            'visa_info': 'Schengen visa for non-EU citizens'
+        },
+        'Germany': {
+            'currency': 'EUR',
+            'language': 'German',
+            'best_time': 'Late spring to early autumn (May-September)',
+            'cultural_notes': 'Punctuality is important, direct communication style, respect quiet hours',
+            'visa_info': 'Schengen visa for non-EU citizens'
+        },
+        'Australia': {
+            'currency': 'AUD',
+            'language': 'English',
+            'best_time': 'Spring (September-November) and Autumn (March-May)',
+            'cultural_notes': 'Casual culture, sun safety important, tipping not mandatory',
+            'visa_info': 'Electronic Travel Authority (ETA) for many countries'
+        },
+        'United States': {
+            'currency': 'USD',
+            'language': 'English',
+            'best_time': 'Varies by region - Spring and Fall generally best',
+            'cultural_notes': 'Tipping culture (15-20%), diverse customs by region, friendly conversation',
+            'visa_info': 'ESTA for eligible countries, tourist visa for others'
+        }
+    }
+    
+    return country_data.get(country, {
+        'currency': 'USD',
+        'language': 'Local language',
+        'best_time': 'Year-round',
+        'cultural_notes': 'Research local customs before traveling',
+        'visa_info': 'Check visa requirements'
+    })
+
+def get_popular_destinations(country):
+    """Get popular destinations for a country."""
+    destinations = {
+        'Japan': ['Tokyo', 'Kyoto', 'Osaka', 'Hiroshima', 'Nara'],
+        'Thailand': ['Bangkok', 'Chiang Mai', 'Phuket', 'Krabi', 'Koh Samui'],
+        'India': ['Delhi', 'Mumbai', 'Jaipur', 'Goa', 'Kerala'],
+        'United Kingdom': ['London', 'Edinburgh', 'Bath', 'York', 'Cambridge'],
+        'France': ['Paris', 'Nice', 'Lyon', 'Bordeaux', 'Marseille'],
+        'Italy': ['Rome', 'Florence', 'Venice', 'Milan', 'Naples'],
+        'Spain': ['Madrid', 'Barcelona', 'Seville', 'Valencia', 'Granada'],
+        'Germany': ['Berlin', 'Munich', 'Hamburg', 'Cologne', 'Dresden'],
+        'Australia': ['Sydney', 'Melbourne', 'Brisbane', 'Perth', 'Adelaide'],
+        'United States': ['New York', 'Los Angeles', 'Chicago', 'Miami', 'San Francisco']
+    }
+    
+    return destinations.get(country, ['Capital City', 'Major City', 'Coastal City'])
+
+def get_budget_ranges(country):
+    """Get budget ranges for a country."""
+    country_info = get_country_info(country)
+    currency = country_info['currency']
+    
+    # Base ranges in USD, adjust based on country
+    base_ranges = {
+        'budget': {'min': 30, 'max': 60},
+        'mid_range': {'min': 60, 'max': 150},
+        'luxury': {'min': 150, 'max': 400},
+        'ultra_luxury': {'min': 400, 'max': 1000}
+    }
+    
+    # Currency conversion factors (approximate)
+    conversion_factors = {
+        'JPY': 110,
+        'THB': 35,
+        'INR': 75,
+        'GBP': 0.8,
+        'EUR': 0.9,
+        'AUD': 1.4,
+        'USD': 1.0
+    }
+    
+    factor = conversion_factors.get(currency, 1.0)
+    
+    ranges = {}
+    for budget_type, range_data in base_ranges.items():
+        ranges[budget_type] = {
+            'min': int(range_data['min'] * factor),
+            'max': int(range_data['max'] * factor),
+            'currency': currency
+        }
+    
+    return ranges

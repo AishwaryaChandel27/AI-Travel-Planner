@@ -6,7 +6,12 @@ from google.genai import types
 from pydantic import BaseModel
 
 # Initialize Gemini client
-client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+api_key = os.environ.get("GEMINI_API_KEY")
+if api_key:
+    client = genai.Client(api_key=api_key)
+else:
+    client = None
+    logging.warning("GEMINI_API_KEY not found. Using fallback recommendations.")
 
 class TravelRecommendation(BaseModel):
     destination: str
@@ -26,6 +31,11 @@ class ItineraryPlan(BaseModel):
 
 def get_destination_recommendations(preferences: dict) -> list[TravelRecommendation]:
     """Get AI-powered destination recommendations based on user preferences."""
+    # Use fallback if no API key available
+    if not client:
+        logging.info("Using fallback recommendations due to missing API key")
+        return get_fallback_recommendations(preferences)
+    
     try:
         interests_str = ", ".join(preferences.get('interests', []))
         country_info = preferences.get('country_info', {})
@@ -194,6 +204,11 @@ def get_fallback_recommendations(preferences: dict) -> list[TravelRecommendation
 
 def generate_itinerary(preferences: dict, destination: str) -> ItineraryPlan:
     """Generate a detailed itinerary for the selected destination."""
+    # Use fallback if no API key available
+    if not client:
+        logging.info("Using fallback itinerary due to missing API key")
+        return get_fallback_itinerary(preferences, destination)
+    
     try:
         interests_str = ", ".join(preferences.get('interests', []))
         duration = (preferences.get('end_date') - preferences.get('start_date')).days if preferences.get('end_date') and preferences.get('start_date') else 7
@@ -259,6 +274,19 @@ def generate_itinerary(preferences: dict, destination: str) -> ItineraryPlan:
 
 def get_travel_tips(destination: str, preferences: dict) -> list[str]:
     """Get AI-powered travel tips for the destination."""
+    # Use fallback if no API key available
+    if not client:
+        return [
+            f'Research local customs before visiting {destination}',
+            'Always carry local currency for small purchases',
+            'Download offline maps and translation apps',
+            'Keep copies of important documents',
+            'Learn basic phrases in the local language',
+            'Respect local dress codes and traditions',
+            'Stay aware of your surroundings',
+            'Try local cuisine but be cautious with street food'
+        ]
+    
     try:
         country_info = preferences.get('country_info', {})
         currency = country_info.get('currency', 'USD')
@@ -282,6 +310,82 @@ def get_travel_tips(destination: str, preferences: dict) -> list[str]:
         - Local customs and etiquette specific to {preferences.get('destination_country')}
         - Money-saving tips and currency exchange
         - Safety considerations and local laws
+
+
+def get_fallback_itinerary(preferences: dict, destination: str) -> ItineraryPlan:
+    """Generate a fallback itinerary when AI is not available."""
+    duration = (preferences.get('end_date') - preferences.get('start_date')).days if preferences.get('end_date') and preferences.get('start_date') else 3
+    
+    daily_activities = []
+    for i in range(duration):
+        day_activities = [
+            {
+                'time': '09:00',
+                'activity': f'Morning exploration of {destination}',
+                'description': 'Start your day with local sights and attractions',
+                'duration': '3 hours'
+            },
+            {
+                'time': '13:00',
+                'activity': 'Local lunch experience',
+                'description': 'Try authentic local cuisine',
+                'duration': '1.5 hours'
+            },
+            {
+                'time': '15:00',
+                'activity': f'Afternoon activities in {destination}',
+                'description': 'Explore museums, parks, or cultural sites',
+                'duration': '3 hours'
+            },
+            {
+                'time': '19:00',
+                'activity': 'Evening dining and relaxation',
+                'description': 'Enjoy dinner and evening entertainment',
+                'duration': '2 hours'
+            }
+        ]
+        daily_activities.append({
+            'day': f'Day {i+1}',
+            'activities': day_activities
+        })
+    
+    budget_breakdown = {
+        'accommodation': 100 * duration,
+        'food': 60 * duration,
+        'activities': 40 * duration,
+        'transport': 30 * duration
+    }
+    
+    recommended_restaurants = [
+        {'name': f'{destination} Local Bistro', 'cuisine': 'Local', 'price_range': '20-40'},
+        {'name': f'{destination} Fine Dining', 'cuisine': 'International', 'price_range': '50-80'},
+        {'name': f'{destination} Street Food', 'cuisine': 'Street Food', 'price_range': '10-20'}
+    ]
+    
+    accommodation_suggestions = [
+        {'name': f'{destination} Hotel', 'type': 'Hotel', 'price_range': '80-120'},
+        {'name': f'{destination} Boutique Stay', 'type': 'Boutique', 'price_range': '100-150'},
+        {'name': f'{destination} Budget Lodge', 'type': 'Hostel', 'price_range': '30-60'}
+    ]
+    
+    travel_tips = [
+        f'Research local customs before visiting {destination}',
+        'Always carry local currency for small vendors',
+        'Download offline maps for navigation',
+        'Learn a few basic phrases in the local language',
+        'Keep important documents in a safe place'
+    ]
+    
+    return ItineraryPlan(
+        destination=destination,
+        duration_days=duration,
+        daily_activities=daily_activities,
+        budget_breakdown=budget_breakdown,
+        travel_tips=travel_tips,
+        recommended_restaurants=recommended_restaurants,
+        accommodation_suggestions=accommodation_suggestions
+    )
+
         - Best ways to get around {destination}
         - Food and dining recommendations with local specialties
         - Cultural insights and social norms

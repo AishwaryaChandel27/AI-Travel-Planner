@@ -4,141 +4,46 @@
 
 {% block content %}
 <div class="container">
-    <div class="row">
-        <div class="col-12">
-            <div class="bookings-header mb-4">
-                <h1>
-                    <i class="fas fa-ticket-alt me-2"></i>My Bookings
-                </h1>
-                <p class="lead text-muted">View and manage your travel bookings</p>
-            </div>
+    <h2 class="mb-4">
+        <i class="fas fa-list me-3"></i>My Bookings
+    </h2>
 
-            {% if bookings %}
-                <div class="bookings-list">
-                    {% for booking in bookings %}
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0">
-                                    {% if booking.booking_type == 'flights' %}
-                                        <i class="fas fa-plane me-2"></i>Flight Booking
-                                    {% elif booking.booking_type == 'hotels' %}
-                                        <i class="fas fa-bed me-2"></i>Hotel Booking
-                                    {% else %}
-                                        <i class="fas fa-star me-2"></i>Activity Booking
-                                    {% endif %}
-                                </h5>
-                                <span class="badge bg-{{ 'success' if booking.status == 'confirmed' else 'warning' }}">
-                                    {{ booking.status|title }}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-8">
-                                    <div class="booking-details">
-                                        <h6>Booking Reference: <strong>{{ booking.booking_reference }}</strong></h6>
-                                        <p class="text-muted mb-2">
-                                            <i class="fas fa-calendar me-2"></i>
-                                            Booked on {{ booking.created_at.strftime('%B %d, %Y at %I:%M %p') }}
-                                        </p>
-                                        
-                                        {% if booking.provider %}
-                                        <p class="text-muted mb-2">
-                                            <i class="fas fa-building me-2"></i>
-                                            Provider: {{ booking.provider }}
-                                        </p>
-                                        {% endif %}
-
-                                        {% if booking.details %}
-                                            {% if booking.booking_type == 'flights' and booking.details.airline %}
-                                            <div class="flight-details">
-                                                <p><strong>{{ booking.details.airline }} - {{ booking.details.flight_number }}</strong></p>
-                                                <p>{{ booking.details.origin }} → {{ booking.details.destination }}</p>
-                                                <p>{{ booking.details.departure_date }} at {{ booking.details.departure_time }}</p>
-                                            </div>
-                                            {% elif booking.booking_type == 'hotels' and booking.details.name %}
-                                            <div class="hotel-details">
-                                                <p><strong>{{ booking.details.name }}</strong></p>
-                                                <p>{{ booking.details.room_type }}</p>
-                                                <p>{{ booking.details.address }}</p>
-                                            </div>
-                                            {% elif booking.booking_type == 'activities' and booking.details.name %}
-                                            <div class="activity-details">
-                                                <p><strong>{{ booking.details.name }}</strong></p>
-                                                <p>{{ booking.details.description }}</p>
-                                                <p>Duration: {{ booking.details.duration }}</p>
-                                            </div>
-                                            {% endif %}
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                <div class="col-md-4 text-end">
-                                    <div class="booking-cost">
-                                        <h4 class="text-primary mb-2">${{ booking.cost }}</h4>
-                                        <small class="text-muted">Total Cost</small>
-                                    </div>
-                                    <div class="booking-actions mt-3">
-                                        <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('{{ booking.booking_reference }}')">
-                                            <i class="fas fa-copy me-1"></i>Copy Reference
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-
-                <!-- Booking Summary -->
-                <div class="card mt-4">
+    {% if bookings %}
+        <div class="row">
+            {% for booking in bookings %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0">
-                            <i class="fas fa-chart-bar me-2"></i>Booking Summary
-                        </h5>
+                        <h6 class="mb-0">
+                            <i class="fas fa-{% if booking.booking_type == 'flight' %}plane{% elif booking.booking_type == 'hotel' %}bed{% else %}hiking{% endif %} me-2"></i>
+                            {{ booking.booking_type.title() }}
+                        </h6>
                     </div>
                     <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-3">
-                                <div class="text-center">
-                                    <h4 class="text-primary">{{ bookings|length }}</h4>
-                                    <small class="text-muted">Total Bookings</small>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="text-center">
-                                    <h4 class="text-success">${{ bookings|sum(attribute='cost') }}</h4>
-                                    <small class="text-muted">Total Spent</small>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="text-center">
-                                    <h4 class="text-info">{{ bookings|selectattr('booking_type', 'equalto', 'flights')|list|length }}</h4>
-                                    <small class="text-muted">Flights</small>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="text-center">
-                                    <h4 class="text-warning">{{ bookings|selectattr('booking_type', 'equalto', 'hotels')|list|length }}</h4>
-                                    <small class="text-muted">Hotels</small>
-                                </div>
-                            </div>
-                        </div>
+                        <p class="card-text">
+                            <strong>Reference:</strong> {{ booking.booking_reference }}<br>
+                            <strong>Provider:</strong> {{ booking.provider }}<br>
+                            <strong>Status:</strong> 
+                            <span class="badge bg-{% if booking.status == 'confirmed' %}success{% else %}warning{% endif %}">
+                                {{ booking.status.title() }}
+                            </span><br>
+                            <strong>Cost:</strong> ${{ booking.cost }}
+                        </p>
+                        <small class="text-muted">Booked on {{ booking.created_at.strftime('%Y-%m-%d') }}</small>
                     </div>
                 </div>
-            {% else %}
-                <div class="empty-state text-center py-5">
-                    <i class="fas fa-suitcase fa-5x text-muted mb-4"></i>
-                    <h3>No Bookings Yet</h3>
-                    <p class="text-muted mb-4">
-                        You haven't made any bookings yet. Start planning your trip to see your bookings here.
-                    </p>
-                    <a href="{{ url_for('preferences') }}" class="btn btn-primary">
-                        <i class="fas fa-plane me-2"></i>Plan Your First Trip
-                    </a>
-                </div>
-            {% endif %}
+            </div>
+            {% endfor %}
         </div>
-    </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-clipboard-list text-muted fa-3x mb-3"></i>
+            <h4 class="text-muted">No bookings yet</h4>
+            <p class="text-muted">Start planning your trip to make your first booking!</p>
+            <a href="{{ url_for('preferences') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Plan New Trip
+            </a>
+        </div>
+    {% endif %}
 </div>
 {% endblock %}
