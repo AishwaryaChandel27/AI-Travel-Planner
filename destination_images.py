@@ -1,23 +1,16 @@
 import random
 
 def get_destination_image_url(destination: str) -> str:
-    """Get a placeholder image URL for a destination."""
-    # Using Unsplash for high-quality travel images
-    image_keywords = [
-        'travel', 'city', 'landscape', 'architecture', 'tourism', 
-        'vacation', 'adventure', 'culture', 'landmark', 'scenic'
-    ]
+    """Get image URL for a destination."""
+    try:
+        # Clean destination name for URL
+        clean_name = str(destination).lower().replace(' ', '-').replace(',', '')
 
-    # Create a consistent but varied image for each destination
-    seed = sum(ord(c) for c in destination.lower())
-    random.seed(seed)
-
-    keyword = random.choice(image_keywords)
-    width = 800
-    height = 600
-
-    # Use Unsplash API for beautiful images
-    return f"https://source.unsplash.com/{width}x{height}/?{keyword},{destination.lower().replace(' ', ',')}"
+        # Use a placeholder service that provides travel images
+        return f"https://picsum.photos/400/250?random={abs(hash(destination)) % 1000}"
+    except Exception as e:
+        logging.warning(f"Error generating image URL for {destination}: {e}")
+        return "https://picsum.photos/400/250?random=1"
 
 def get_destination_colors(destination: str) -> dict:
     """Get color scheme for a destination card."""

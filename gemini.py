@@ -1,17 +1,30 @@
-import json
-import logging
+try:
+    import google.generativeai as genai
+    GENAI_AVAILABLE = True
+except ImportError:
+    GENAI_AVAILABLE = False
+
 import os
-from google import genai
-from google.genai import types
-from pydantic import BaseModel
+import logging
+from typing import List, Dict, Any
+from pydantic import BaseModel, Field
 
 # Initialize Gemini client
 api_key = os.environ.get("GEMINI_API_KEY")
-if api_key:
-    client = genai.Client(api_key=api_key)
+if api_key and GENAI_AVAILABLE:
+    try:
+        genai.configure(api_key=api_key)
+        client = genai
+    except Exception as e:
+        client = None
+        logging.error(f"Failed to configure Gemini: {e}")
+        logging.warning("Using fallback recommendations.")
 else:
     client = None
-    logging.warning("GEMINI_API_KEY not found. Using fallback recommendations.")
+    if not api_key:
+        logging.warning("GEMINI_API_KEY not found. Using fallback recommendations.")
+    if not GENAI_AVAILABLE:
+        logging.warning("Google Generative AI not available. Using fallback recommendations.")
 
 class TravelRecommendation(BaseModel):
     destination: str
@@ -73,17 +86,16 @@ def get_destination_recommendations(preferences: dict) -> list[TravelRecommendat
         Focus on destinations that match the budget type and interests. Be specific about costs in {currency}.
         """
 
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-            ),
-        )
+        response = genai.GenerativeModel('gemini-2.5-flash').generate_content(prompt)
 
         if response.text:
-            data = json.loads(response.text)
-            return [TravelRecommendation(**rec) for rec in data]
+            try:
+                data = json.loads(response.text)
+                return [TravelRecommendation(**rec) for rec in data]
+            except json.JSONDecodeError as e:
+                logging.error(f"JSONDecodeError: {e}, Response Text: {response.text}")
+                return get_fallback_recommendations(preferences)
+
         else:
             raise ValueError("Empty response from Gemini")
 
@@ -244,33 +256,22 @@ def generate_itinerary(preferences: dict, destination: str) -> ItineraryPlan:
         Consider local customs, tipping practices, and cultural norms.
         """
 
-        response = client.models.generate_content(
-            model="gemini-2.5-pro",
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-                response_schema=ItineraryPlan,
-            ),
-        )
+        response = genai.GenerativeModel('gemini-2.5-pro').generate_content(prompt)
 
         if response.text:
-            data = json.loads(response.text)
-            return ItineraryPlan(**data)
+            try:
+                data = json.loads(response.text)
+                return ItineraryPlan(**data)
+            except json.JSONDecodeError as e:
+                logging.error(f"JSONDecodeError: {e}, Response Text: {response.text}")
+                return get_fallback_itinerary(preferences, destination)
         else:
             raise ValueError("Empty response from Gemini")
 
     except Exception as e:
         logging.error(f"Error generating itinerary: {e}")
         # Return a basic fallback itinerary
-        return ItineraryPlan(
-            destination=destination,
-            duration_days=duration,
-            daily_activities=[],
-            budget_breakdown={},
-            travel_tips=[],
-            recommended_restaurants=[],
-            accommodation_suggestions=[]
-        )
+        return get_fallback_itinerary(preferences, destination)
 
 def get_travel_tips(destination: str, preferences: dict) -> list[str]:
     """Get AI-powered travel tips for the destination."""
@@ -320,17 +321,14 @@ def get_travel_tips(destination: str, preferences: dict) -> list[str]:
         Return as a JSON array of strings.
         """
 
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-                response_schema=list[str],
-            ),
-        )
+        response = genai.GenerativeModel('gemini-2.5-flash').generate_content(prompt)
 
         if response.text:
-            return json.loads(response.text)
+            try:
+                return json.loads(response.text)
+            except json.JSONDecodeError as e:
+                logging.error(f"JSONDecodeError: {e}, Response Text: {response.text}")
+                return []
         else:
             return []
 

@@ -1,19 +1,18 @@
-
 import random
 from datetime import datetime, timedelta
 from typing import List, Dict, Any
 
 class TravelService:
     """Service for handling travel-related operations like booking flights, hotels, and activities."""
-    
+
     def __init__(self):
         self.booking_counter = 1000
-    
+
     def get_weather_info(self, destination: str) -> Dict[str, Any]:
         """Get weather information for a destination."""
         # Mock weather data
         weather_conditions = ['Sunny', 'Partly Cloudy', 'Cloudy', 'Light Rain', 'Clear']
-        
+
         return {
             'destination': destination,
             'current_temp': random.randint(15, 30),
@@ -41,7 +40,7 @@ class TravelService:
                 }
             ]
         }
-    
+
     def get_activities(self, destination: str, interests: List[str]) -> List[Dict[str, Any]]:
         """Get activities for a destination based on interests."""
         activities_pool = {
@@ -76,30 +75,30 @@ class TravelService:
                 {'name': 'Yoga Session', 'description': 'Outdoor yoga with scenic views', 'price': 25, 'duration': '1 hour'}
             ]
         }
-        
+
         selected_activities = []
         for interest in interests:
             if interest in activities_pool:
                 selected_activities.extend(activities_pool[interest])
-        
+
         # If no interests match, return general activities
         if not selected_activities:
             selected_activities = activities_pool['culture'] + activities_pool['food']
-        
+
         return selected_activities[:8]  # Return max 8 activities
-    
+
     def search_flights(self, origin: str, destination: str, departure_date: str, return_date: str, passengers: int) -> List[Dict[str, Any]]:
         """Search for flights (mock implementation)."""
         airlines = ['SkyWings', 'AirTravel', 'CloudHopper', 'JetStream', 'FlyHigh']
         flight_times = ['06:30', '09:15', '12:45', '15:30', '18:20', '21:10']
-        
+
         flights = []
         for i in range(5):  # Return 5 flight options
             price = random.randint(200, 800)
             airline = random.choice(airlines)
             departure_time = random.choice(flight_times)
             arrival_time = flight_times[(flight_times.index(departure_time) + random.randint(2, 4)) % len(flight_times)]
-            
+
             flights.append({
                 'id': f'flight_{i+1}',
                 'airline': airline,
@@ -118,21 +117,21 @@ class TravelService:
                 'baggage': '1 checked bag included',
                 'provider': 'FlightBooking Pro'
             })
-        
+
         return sorted(flights, key=lambda x: x['total_price'])
-    
+
     def search_hotels(self, destination: str, check_in: str, check_out: str, guests: int) -> List[Dict[str, Any]]:
         """Search for hotels (mock implementation)."""
         hotel_types = ['Hotel', 'Resort', 'Boutique Hotel', 'Business Hotel', 'Luxury Hotel']
         amenities_pool = ['Free WiFi', 'Pool', 'Gym', 'Spa', 'Restaurant', 'Bar', 'Room Service', 'Concierge', 'Parking']
-        
+
         hotels = []
         for i in range(6):  # Return 6 hotel options
             price_per_night = random.randint(80, 400)
             hotel_type = random.choice(hotel_types)
             stars = random.randint(3, 5)
             amenities = random.sample(amenities_pool, random.randint(4, 7))
-            
+
             hotels.append({
                 'id': f'hotel_{i+1}',
                 'name': f'{destination} {hotel_type}',
@@ -150,14 +149,14 @@ class TravelService:
                 'description': f'Comfortable {hotel_type.lower()} in the heart of {destination}',
                 'provider': 'HotelBooking Plus'
             })
-        
+
         return sorted(hotels, key=lambda x: x['total_price'])
-    
+
     def create_booking(self, booking_type: str, item_id: str, details: Dict[str, Any]) -> Dict[str, Any]:
         """Create a booking (mock implementation)."""
         self.booking_counter += 1
         booking_reference = f'{booking_type.upper()}{self.booking_counter}'
-        
+
         booking_info = {
             'booking_reference': booking_reference,
             'booking_type': booking_type,
@@ -171,5 +170,5 @@ class TravelService:
             'cancellation_policy': 'Free cancellation up to 24 hours before travel',
             'details': details
         }
-        
+
         return booking_info

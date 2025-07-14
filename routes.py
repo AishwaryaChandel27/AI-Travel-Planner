@@ -54,10 +54,10 @@ def preferences():
                 start_date=start_date,
                 end_date=end_date,
                 group_size=int(request.form['group_size']),
-                interests=interests,
                 accommodation_type=request.form['accommodation_type'],
                 transport_preference=request.form['transport_preference']
             )
+            preference.interests_list = interests
             
             db.session.add(preference)
             db.session.commit()
@@ -90,16 +90,21 @@ def preferences():
             # Add image URLs and colors to recommendations
             enhanced_recommendations = []
             for rec in recommendations:
-                if hasattr(rec, 'dict'):
-                    rec_dict = rec.dict()
-                elif hasattr(rec, '__dict__'):
-                    rec_dict = rec.__dict__
-                else:
-                    rec_dict = rec
-                
-                rec_dict['image_url'] = get_destination_image_url(rec_dict['destination'])
-                rec_dict['colors'] = get_destination_colors(rec_dict['destination'])
-                enhanced_recommendations.append(rec_dict)
+                try:
+                    if hasattr(rec, 'dict'):
+                        rec_dict = rec.dict()
+                    elif hasattr(rec, '__dict__'):
+                        rec_dict = rec.__dict__
+                    else:
+                        rec_dict = rec if isinstance(rec, dict) else {'destination': str(rec)}
+                    
+                    if 'destination' in rec_dict:
+                        rec_dict['image_url'] = get_destination_image_url(rec_dict['destination'])
+                        rec_dict['colors'] = get_destination_colors(rec_dict['destination'])
+                    enhanced_recommendations.append(rec_dict)
+                except Exception as e:
+                    logging.warning(f"Error processing recommendation {rec}: {e}")
+                    continue
             
             session['recommendations'] = enhanced_recommendations
             
@@ -165,19 +170,20 @@ def select_destination(destination_index):
         travel_tips = get_travel_tips(selected_destination['destination'], preferences_dict)
         
         # Create itinerary record
+        import json
         itinerary = Itinerary(
             session_id=session['session_id'],
             preference_id=preference.id,
             destination=selected_destination['destination'],
             title=f"{selected_destination['destination']} Adventure",
-            description=f"Personalized {itinerary_plan.duration_days}-day itinerary for {selected_destination['destination']}",
-            activities=itinerary_plan.daily_activities,
-            budget_breakdown=itinerary_plan.budget_breakdown,
-            recommendations={
-                'restaurants': itinerary_plan.recommended_restaurants,
-                'accommodations': itinerary_plan.accommodation_suggestions,
+            description=f"Personalized itinerary for {selected_destination['destination']}",
+            activities=json.dumps(itinerary_plan.daily_activities if hasattr(itinerary_plan, 'daily_activities') else []),
+            budget_breakdown=json.dumps(itinerary_plan.budget_breakdown if hasattr(itinerary_plan, 'budget_breakdown') else {}),
+            recommendations=json.dumps({
+                'restaurants': itinerary_plan.recommended_restaurants if hasattr(itinerary_plan, 'recommended_restaurants') else [],
+                'accommodations': itinerary_plan.accommodation_suggestions if hasattr(itinerary_plan, 'accommodation_suggestions') else [],
                 'travel_tips': travel_tips
-            }
+            })
         )
         
         db.session.add(itinerary)
