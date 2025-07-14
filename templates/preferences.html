@@ -3,161 +3,164 @@
 {% block title %}Travel Preferences - AI Travel Planner{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-lg-8">
-            <div class="card">
-                <div class="card-header">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
                     <h3 class="card-title mb-0">
-                        <i class="fas fa-map-marked-alt me-2"></i>
-                        Tell us about your dream trip
+                        <i class="fas fa-cog me-2"></i>Travel Preferences
                     </h3>
                 </div>
                 <div class="card-body">
-                    <form method="POST" class="needs-validation" novalidate>
-                        <!-- Destination Country -->
+                    <form method="POST" action="{{ url_for('preferences') }}">
+                        <!-- Destination -->
                         <div class="mb-4">
-                            <label for="destination_country" class="form-label">
-                                <i class="fas fa-globe me-2"></i>Which country would you like to visit?
+                            <label for="destination_country" class="form-label fw-bold">
+                                <i class="fas fa-globe me-2"></i>Destination Country
                             </label>
                             <select class="form-select" id="destination_country" name="destination_country" required>
-                                <option value="">Choose a country...</option>
-                                <option value="Japan">Japan</option>
-                                <option value="Thailand">Thailand</option>
-                                <option value="India">India</option>
-                                <option value="United Kingdom">United Kingdom</option>
+                                <option value="">Select a country</option>
                                 <option value="France">France</option>
                                 <option value="Italy">Italy</option>
                                 <option value="Spain">Spain</option>
+                                <option value="Japan">Japan</option>
+                                <option value="Thailand">Thailand</option>
+                                <option value="United States">United States</option>
+                                <option value="United Kingdom">United Kingdom</option>
                                 <option value="Germany">Germany</option>
                                 <option value="Australia">Australia</option>
-                                <option value="United States">United States</option>
+                                <option value="Greece">Greece</option>
                             </select>
-                        </div>
-
-                        <!-- Travel Dates -->
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <label for="start_date" class="form-label">
-                                    <i class="fas fa-calendar-alt me-2"></i>Start Date
-                                </label>
-                                <input type="date" class="form-control" id="start_date" name="start_date" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="end_date" class="form-label">
-                                    <i class="fas fa-calendar-alt me-2"></i>End Date
-                                </label>
-                                <input type="date" class="form-control" id="end_date" name="end_date" required>
-                            </div>
                         </div>
 
                         <!-- Budget -->
                         <div class="row mb-4">
                             <div class="col-md-6">
-                                <label for="budget_type" class="form-label">
-                                    <i class="fas fa-dollar-sign me-2"></i>Budget Type
+                                <label for="budget_type" class="form-label fw-bold">
+                                    <i class="fas fa-wallet me-2"></i>Budget Type
                                 </label>
                                 <select class="form-select" id="budget_type" name="budget_type" required>
-                                    <option value="">Choose budget type...</option>
-                                    <option value="budget">Budget Traveler</option>
-                                    <option value="mid_range">Mid-Range</option>
+                                    <option value="budget">Budget (Low cost)</option>
+                                    <option value="mid_range" selected>Mid-range</option>
                                     <option value="luxury">Luxury</option>
-                                    <option value="ultra_luxury">Ultra Luxury</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label for="budget" class="form-label">
-                                    Daily Budget (USD)
+                                <label for="budget" class="form-label fw-bold">Daily Budget</label>
+                                <input type="number" class="form-control" id="budget" name="budget" 
+                                       min="10" max="10000" value="100" required>
+                            </div>
+                        </div>
+
+                        <!-- Travel Dates -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="start_date" class="form-label fw-bold">
+                                    <i class="fas fa-calendar me-2"></i>Start Date
                                 </label>
-                                <input type="number" class="form-control" id="budget" name="budget" min="20" max="2000" value="100" required>
+                                <input type="date" class="form-control" id="start_date" name="start_date" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="end_date" class="form-label fw-bold">End Date</label>
+                                <input type="date" class="form-control" id="end_date" name="end_date" required>
                             </div>
                         </div>
 
                         <!-- Group Size -->
                         <div class="mb-4">
-                            <label for="group_size" class="form-label">
+                            <label for="group_size" class="form-label fw-bold">
                                 <i class="fas fa-users me-2"></i>Group Size
                             </label>
                             <select class="form-select" id="group_size" name="group_size" required>
-                                <option value="">Choose group size...</option>
-                                <option value="1">Solo Travel</option>
-                                <option value="2">Couple</option>
-                                <option value="3">Small Group (3)</option>
-                                <option value="4">Family (4)</option>
-                                <option value="5">Group (5+)</option>
+                                <option value="1" selected>Solo (1 person)</option>
+                                <option value="2">Couple (2 people)</option>
+                                <option value="3">Small group (3 people)</option>
+                                <option value="4">Family (4 people)</option>
+                                <option value="5">Group (5+ people)</option>
                             </select>
                         </div>
 
                         <!-- Interests -->
                         <div class="mb-4">
-                            <label class="form-label">
-                                <i class="fas fa-heart me-2"></i>What interests you? (Select all that apply)
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-heart me-2"></i>Interests (Select all that apply)
                             </label>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="culture" id="culture" name="interests">
+                                        <input class="form-check-input" type="checkbox" name="interests" value="culture" id="culture">
                                         <label class="form-check-label" for="culture">Culture & History</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="food" id="food" name="interests">
-                                        <label class="form-check-label" for="food">Food & Cuisine</label>
+                                        <input class="form-check-input" type="checkbox" name="interests" value="food" id="food">
+                                        <label class="form-check-label" for="food">Food & Dining</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="adventure" id="adventure" name="interests">
-                                        <label class="form-check-label" for="adventure">Adventure & Outdoor</label>
+                                        <input class="form-check-input" type="checkbox" name="interests" value="nature" id="nature">
+                                        <label class="form-check-label" for="nature">Nature & Outdoors</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="interests" value="adventure" id="adventure">
+                                        <label class="form-check-label" for="adventure">Adventure Sports</label>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="shopping" id="shopping" name="interests">
+                                        <input class="form-check-input" type="checkbox" name="interests" value="nightlife" id="nightlife">
+                                        <label class="form-check-label" for="nightlife">Nightlife</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="interests" value="shopping" id="shopping">
                                         <label class="form-check-label" for="shopping">Shopping</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="nature" id="nature" name="interests">
-                                        <label class="form-check-label" for="nature">Nature & Wildlife</label>
+                                        <input class="form-check-input" type="checkbox" name="interests" value="relaxation" id="relaxation">
+                                        <label class="form-check-label" for="relaxation">Relaxation</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="nightlife" id="nightlife" name="interests">
-                                        <label class="form-check-label" for="nightlife">Nightlife</label>
+                                        <input class="form-check-input" type="checkbox" name="interests" value="art" id="art">
+                                        <label class="form-check-label" for="art">Art & Museums</label>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Accommodation -->
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <label for="accommodation_type" class="form-label">
-                                    <i class="fas fa-bed me-2"></i>Accommodation Preference
-                                </label>
-                                <select class="form-select" id="accommodation_type" name="accommodation_type" required>
-                                    <option value="">Choose accommodation...</option>
-                                    <option value="hotel">Hotel</option>
-                                    <option value="hostel">Hostel</option>
-                                    <option value="resort">Resort</option>
-                                    <option value="apartment">Apartment/Airbnb</option>
-                                    <option value="guesthouse">Guesthouse</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="transport_preference" class="form-label">
-                                    <i class="fas fa-plane me-2"></i>Transport Preference
-                                </label>
-                                <select class="form-select" id="transport_preference" name="transport_preference" required>
-                                    <option value="">Choose transport...</option>
-                                    <option value="public_transport">Public Transport</option>
-                                    <option value="rental_car">Rental Car</option>
-                                    <option value="taxi_rideshare">Taxi/Rideshare</option>
-                                    <option value="walking">Walking</option>
-                                    <option value="bicycle">Bicycle</option>
-                                </select>
-                            </div>
+                        <div class="mb-4">
+                            <label for="accommodation_type" class="form-label fw-bold">
+                                <i class="fas fa-bed me-2"></i>Accommodation Preference
+                            </label>
+                            <select class="form-select" id="accommodation_type" name="accommodation_type" required>
+                                <option value="hotel" selected>Hotel</option>
+                                <option value="hostel">Hostel</option>
+                                <option value="apartment">Apartment/Airbnb</option>
+                                <option value="resort">Resort</option>
+                                <option value="guesthouse">Guesthouse</option>
+                            </select>
                         </div>
 
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-magic me-2"></i>Get AI Recommendations
+                        <!-- Transport -->
+                        <div class="mb-4">
+                            <label for="transport_preference" class="form-label fw-bold">
+                                <i class="fas fa-car me-2"></i>Transport Preference
+                            </label>
+                            <select class="form-select" id="transport_preference" name="transport_preference" required>
+                                <option value="public_transport" selected>Public Transport</option>
+                                <option value="rental_car">Rental Car</option>
+                                <option value="taxi_uber">Taxi/Uber</option>
+                                <option value="walking">Walking</option>
+                                <option value="bicycle">Bicycle</option>
+                            </select>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary me-md-2">
+                                <i class="fas fa-arrow-left me-2"></i>Back
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-2"></i>Get Recommendations
                             </button>
                         </div>
                     </form>
@@ -166,161 +169,19 @@
         </div>
     </div>
 </div>
-{% endblock %}
-{% extends "base.html" %}
 
-{% block title %}Travel Preferences - AI Travel Planner{% endblock %}
+<script>
+// Set minimum date to today
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('start_date').setAttribute('min', today);
+    document.getElementById('end_date').setAttribute('min', today);
 
-{% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title mb-0">
-                    <i class="fas fa-map-marked-alt me-2"></i>Plan Your Perfect Trip
-                </h3>
-            </div>
-            <div class="card-body">
-                <form method="POST" id="preferencesForm" class="needs-validation" novalidate>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="destination_country" class="form-label">Destination Country</label>
-                            <select class="form-select" id="destination_country" name="destination_country" required>
-                                <option value="">Choose a country...</option>
-                                <option value="japan">Japan</option>
-                                <option value="france">France</option>
-                                <option value="italy">Italy</option>
-                                <option value="spain">Spain</option>
-                                <option value="thailand">Thailand</option>
-                                <option value="united_states">United States</option>
-                                <option value="united_kingdom">United Kingdom</option>
-                                <option value="germany">Germany</option>
-                                <option value="australia">Australia</option>
-                                <option value="brazil">Brazil</option>
-                            </select>
-                            <div class="invalid-feedback">Please select a destination country.</div>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="budget_type" class="form-label">Budget Type</label>
-                            <select class="form-select" id="budget_type" name="budget_type" required>
-                                <option value="">Choose budget type...</option>
-                                <option value="budget">Budget (Under $1000)</option>
-                                <option value="mid_range">Mid-range ($1000-$3000)</option>
-                                <option value="luxury">Luxury ($3000+)</option>
-                            </select>
-                            <div class="invalid-feedback">Please select a budget type.</div>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="budget" class="form-label">Budget Amount ($)</label>
-                            <input type="number" class="form-control" id="budget" name="budget" min="100" max="50000" value="2000" required>
-                            <div class="invalid-feedback">Please enter a valid budget amount.</div>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="group_size" class="form-label">Group Size</label>
-                            <select class="form-select" id="group_size" name="group_size" required>
-                                <option value="1">Solo (1 person)</option>
-                                <option value="2" selected>Couple (2 people)</option>
-                                <option value="3">Small group (3-4 people)</option>
-                                <option value="5">Large group (5+ people)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="start_date" class="form-label">Start Date</label>
-                            <input type="date" class="form-control" id="start_date" name="start_date" required>
-                            <div class="invalid-feedback">Please select a start date.</div>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="end_date" class="form-label">End Date</label>
-                            <input type="date" class="form-control" id="end_date" name="end_date" required>
-                            <div class="invalid-feedback">Please select an end date.</div>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="accommodation_type" class="form-label">Accommodation Type</label>
-                            <select class="form-select" id="accommodation_type" name="accommodation_type" required>
-                                <option value="hotel">Hotel</option>
-                                <option value="hostel">Hostel</option>
-                                <option value="airbnb">Airbnb</option>
-                                <option value="resort">Resort</option>
-                                <option value="guesthouse">Guesthouse</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="transport_preference" class="form-label">Transport Preference</label>
-                            <select class="form-select" id="transport_preference" name="transport_preference" required>
-                                <option value="public_transport">Public Transport</option>
-                                <option value="rental_car">Rental Car</option>
-                                <option value="taxi_uber">Taxi/Uber</option>
-                                <option value="walking">Walking</option>
-                                <option value="bicycle">Bicycle</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="form-label">Interests (Select all that apply)</label>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="interests" value="culture" id="culture">
-                                    <label class="form-check-label" for="culture">Culture & History</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="interests" value="food" id="food">
-                                    <label class="form-check-label" for="food">Food & Dining</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="interests" value="adventure" id="adventure">
-                                    <label class="form-check-label" for="adventure">Adventure & Sports</label>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="interests" value="nature" id="nature">
-                                    <label class="form-check-label" for="nature">Nature & Wildlife</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="interests" value="nightlife" id="nightlife">
-                                    <label class="form-check-label" for="nightlife">Nightlife & Entertainment</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="interests" value="shopping" id="shopping">
-                                    <label class="form-check-label" for="shopping">Shopping</label>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="interests" value="relaxation" id="relaxation">
-                                    <label class="form-check-label" for="relaxation">Relaxation & Wellness</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="interests" value="photography" id="photography">
-                                    <label class="form-check-label" for="photography">Photography</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="interests" value="art" id="art">
-                                    <label class="form-check-label" for="art">Art & Museums</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fas fa-search me-2"></i>Find My Perfect Destinations
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+    // Update end date minimum when start date changes
+    document.getElementById('start_date').addEventListener('change', function() {
+        const startDate = this.value;
+        document.getElementById('end_date').setAttribute('min', startDate);
+    });
+});
+</script>
 {% endblock %}
