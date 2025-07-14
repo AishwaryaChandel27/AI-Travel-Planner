@@ -6,7 +6,7 @@ from google.genai import types
 from pydantic import BaseModel
 
 # Initialize Gemini client
-client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY", "default_key"))
+client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
 class TravelRecommendation(BaseModel):
     destination: str

@@ -33,8 +33,7 @@ with app.app_context():
     import models  # noqa: F401
     db.create_all()
 
-# Import routes
-from routes import *  # noqa: F401
+# Routes will be imported in main.py to avoid circular imports
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
