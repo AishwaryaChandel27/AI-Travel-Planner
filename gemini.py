@@ -40,6 +40,144 @@ class ItineraryPlan(BaseModel):
     duration_days: int
     daily_activities: list[dict]
     budget_breakdown: dict
+    recommended_restaurants: list[dict] = []
+    accommodation_suggestions: list[dict] = []
+
+def get_destination_recommendations(preferences: dict) -> list[TravelRecommendation]:
+    """Get AI-powered destination recommendations based on user preferences."""
+    if not client:
+        return get_fallback_recommendations(preferences)
+    
+    try:
+        prompt = f"""
+        Based on these travel preferences, recommend 3 destinations:
+        - Budget: ${preferences.get('budget', 1000)}
+        - Duration: {(preferences.get('end_date') - preferences.get('start_date')).days if preferences.get('end_date') and preferences.get('start_date') else 7} days
+        - Group size: {preferences.get('group_size', 1)}
+        - Interests: {', '.join(preferences.get('interests', ['general']))}
+        - Country preference: {preferences.get('destination_country', 'Any')}
+        
+        For each destination, provide:
+        1. Destination name
+        2. 3 reasons why it fits their preferences
+        3. Best time to visit
+        4. Estimated budget breakdown
+        5. Top highlights
+        
+        Return as JSON array.
+        """
+        
+        model = client.GenerativeModel('gemini-pro')
+        response = model.generate_content(prompt)
+        
+        # Parse response and create recommendations
+        recommendations_data = json.loads(response.text)
+        return [TravelRecommendation(**rec) for rec in recommendations_data[:3]]
+        
+    except Exception as e:
+        logging.error(f"Error getting AI recommendations: {e}")
+        return get_fallback_recommendations(preferences)
+
+def get_fallback_recommendations(preferences: dict) -> list[TravelRecommendation]:
+    """Provide fallback recommendations when AI is not available."""
+    fallback_destinations = [
+        {
+            "destination": "Paris, France",
+            "reasons": ["Rich cultural heritage", "World-class cuisine", "Beautiful architecture"],
+            "best_time_to_visit": "April-June or September-November",
+            "estimated_budget": {"accommodation": 150, "food": 80, "activities": 50, "transport": 30},
+            "highlights": ["Eiffel Tower", "Louvre Museum", "Seine River cruise"]
+        },
+        {
+            "destination": "Tokyo, Japan",
+            "reasons": ["Unique blend of tradition and modernity", "Amazing food scene", "Safe and clean"],
+            "best_time_to_visit": "March-May or September-November",
+            "estimated_budget": {"accommodation": 120, "food": 60, "activities": 40, "transport": 25},
+            "highlights": ["Shibuya Crossing", "Senso-ji Temple", "Tokyo Skytree"]
+        },
+        {
+            "destination": "Barcelona, Spain",
+            "reasons": ["Stunning architecture", "Mediterranean climate", "Vibrant nightlife"],
+            "best_time_to_visit": "May-June or September-October",
+            "estimated_budget": {"accommodation": 100, "food": 50, "activities": 35, "transport": 20},
+            "highlights": ["Sagrada Familia", "Park Güell", "Las Ramblas"]
+        }
+    ]
+    
+    return [TravelRecommendation(**dest) for dest in fallback_destinations]
+
+def generate_itinerary(preferences: dict, destination: str) -> ItineraryPlan:
+    """Generate a detailed itinerary for the selected destination."""
+    if not client:
+        return get_fallback_itinerary(preferences, destination)
+    
+    try:
+        duration = (preferences.get('end_date') - preferences.get('start_date')).days if preferences.get('end_date') and preferences.get('start_date') else 3
+        
+        prompt = f"""
+        Create a detailed {duration}-day itinerary for {destination}:
+        - Budget: ${preferences.get('budget', 1000)}
+        - Group size: {preferences.get('group_size', 1)}
+        - Interests: {', '.join(preferences.get('interests', ['general']))}
+        
+        Include:
+        1. Daily activities with times
+        2. Budget breakdown
+        3. Restaurant recommendations
+        4. Accommodation suggestions
+        
+        Return as JSON.
+        """
+        
+        model = client.GenerativeModel('gemini-pro')
+        response = model.generate_content(prompt)
+        
+        itinerary_data = json.loads(response.text)
+        return ItineraryPlan(**itinerary_data)
+        
+    except Exception as e:
+        logging.error(f"Error generating itinerary: {e}")
+        return get_fallback_itinerary(preferences, destination)
+
+def get_travel_tips(destination: str, preferences: dict) -> list[str]:
+    """Get travel tips for the destination."""
+    if not client:
+        return [
+            f"Learn basic phrases in the local language of {destination}",
+            "Check visa requirements and ensure passport validity",
+            "Research local customs and cultural etiquette",
+            "Pack appropriate clothing for the weather",
+            "Keep important documents in a safe place"
+        ]
+    
+    try:
+        prompt = f"""
+        Provide 5 practical travel tips for visiting {destination}.
+        Consider budget type: {preferences.get('budget_type', 'moderate')}
+        Return as JSON array of strings.
+        """
+        
+        model = client.GenerativeModel('gemini-pro')
+        response = model.generate_content(prompt)
+        
+        tips = json.loads(response.text)
+        return tips[:5]
+        
+    except Exception as e:
+        logging.error(f"Error getting travel tips: {e}")
+        return [
+            f"Learn basic phrases in the local language of {destination}",
+            "Check visa requirements and ensure passport validity",
+            "Research local customs and cultural etiquette",
+            "Pack appropriate clothing for the weather",
+            "Keep important documents in a safe place"
+        ]
+
+class ItineraryPlan(BaseModel):
+    destination: str
+    duration_days: int
+    daily_activities: list[dict]
+    budget_breakdown: dict
     travel_tips: list[str]
     recommended_restaurants: list[dict]
     accommodation_suggestions: list[dict]

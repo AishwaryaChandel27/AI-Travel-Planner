@@ -1,19 +1,6 @@
 from flask import render_template, request, redirect, url_for, flash, session, jsonify
 from app import app, db
 from models import TravelPreference, Itinerary, Booking
-from gemini import get_ai_destination_recommendations, generate_itinerary
-from travel_service import search_flights, search_hotels, search_activities
-from destination_images import get_destination_image
-import uuid
-import logging
-from flask import render_template, request, session, redirect, url_for, flash, jsonify
-from datetime import datetime
-import uuid
-import logging
-import json
-
-from app import app, db
-from models import TravelPreference, Itinerary, Booking
 from gemini import get_destination_recommendations, generate_itinerary, get_travel_tips
 from travel_service import TravelService
 from country_data import get_country_info, get_popular_destinations, get_budget_ranges
