@@ -22,7 +22,7 @@ COUNTRY_DATA = {
         "time_zones": ["EST", "CST", "MST", "PST"],
         "cultural_notes": "Tipping is customary (15-20%). Diverse culture varies by region."
     },
-    
+
     "Canada": {
         "currency": "CAD",
         "budget_ranges": {
@@ -38,7 +38,7 @@ COUNTRY_DATA = {
         "time_zones": ["EST", "CST", "MST", "PST"],
         "cultural_notes": "Polite and multicultural society. Tipping 15-18% is standard."
     },
-    
+
     # Europe
     "United Kingdom": {
         "currency": "GBP",
@@ -57,7 +57,7 @@ COUNTRY_DATA = {
         "time_zones": ["GMT", "BST"],
         "cultural_notes": "Queueing culture. Pub etiquette important. Tipping 10-15% optional."
     },
-    
+
     "France": {
         "currency": "EUR",
         "currency_symbol": "€",
@@ -75,7 +75,7 @@ COUNTRY_DATA = {
         "time_zones": ["CET", "CEST"],
         "cultural_notes": "Formal greetings important. Long lunch breaks. Service charge included."
     },
-    
+
     "Germany": {
         "currency": "EUR",
         "budget_ranges": {
@@ -91,7 +91,7 @@ COUNTRY_DATA = {
         "time_zones": ["CET", "CEST"],
         "cultural_notes": "Punctuality highly valued. Direct communication style. Tipping 10% customary."
     },
-    
+
     "Italy": {
         "currency": "EUR",
         "budget_ranges": {
@@ -107,7 +107,7 @@ COUNTRY_DATA = {
         "time_zones": ["CET", "CEST"],
         "cultural_notes": "Leisurely dining culture. Dress well in cities. Tipping not mandatory but appreciated."
     },
-    
+
     "Spain": {
         "currency": "EUR",
         "budget_ranges": {
@@ -123,7 +123,7 @@ COUNTRY_DATA = {
         "time_zones": ["CET", "CEST"],
         "cultural_notes": "Late dining culture. Siesta traditions. Relaxed pace of life."
     },
-    
+
     # Asia
     "Japan": {
         "currency": "JPY",
@@ -142,7 +142,7 @@ COUNTRY_DATA = {
         "time_zones": ["JST"],
         "cultural_notes": "Bow as greeting. Remove shoes indoors. No tipping culture."
     },
-    
+
     "Thailand": {
         "currency": "THB",
         "currency_symbol": "฿",
@@ -160,7 +160,7 @@ COUNTRY_DATA = {
         "time_zones": ["ICT"],
         "cultural_notes": "Wai greeting. Respect for monarchy. Remove shoes in temples."
     },
-    
+
     "India": {
         "currency": "INR",
         "currency_symbol": "₹",
@@ -178,7 +178,7 @@ COUNTRY_DATA = {
         "time_zones": ["IST"],
         "cultural_notes": "Namaste greeting. Dress modestly. Diverse cultural practices."
     },
-    
+
     "China": {
         "currency": "CNY",
         "budget_ranges": {
@@ -194,7 +194,7 @@ COUNTRY_DATA = {
         "time_zones": ["CST"],
         "cultural_notes": "Business card etiquette. Respect for elders. Gift-giving customs."
     },
-    
+
     # Australia & Oceania
     "Australia": {
         "currency": "AUD",
@@ -211,7 +211,7 @@ COUNTRY_DATA = {
         "time_zones": ["AEST", "ACST", "AWST"],
         "cultural_notes": "Casual culture. Outdoor lifestyle. Tipping not mandatory but appreciated."
     },
-    
+
     # South America
     "Brazil": {
         "currency": "BRL",
@@ -228,7 +228,7 @@ COUNTRY_DATA = {
         "time_zones": ["BRT", "AMT", "ACT"],
         "cultural_notes": "Warm, friendly culture. Beach lifestyle. Late dining times."
     },
-    
+
     "Argentina": {
         "currency": "ARS",
         "budget_ranges": {
@@ -244,7 +244,7 @@ COUNTRY_DATA = {
         "time_zones": ["ART"],
         "cultural_notes": "Tango culture. Late dining. European influence."
     },
-    
+
     # Africa
     "South Africa": {
         "currency": "ZAR",
@@ -261,7 +261,7 @@ COUNTRY_DATA = {
         "time_zones": ["SAST"],
         "cultural_notes": "Rainbow Nation diversity. Braai culture. Tipping 10-15% expected."
     },
-    
+
     # Middle East
     "United Arab Emirates": {
         "currency": "AED",
@@ -284,23 +284,122 @@ def get_country_list():
     """Get list of all supported countries"""
     return list(COUNTRY_DATA.keys())
 
-def get_country_info(country_name):
-    """Get information for a specific country"""
-    return COUNTRY_DATA.get(country_name)
+def get_country_info(country):
+    """Get country information including currency, language, etc."""
+    country_data = {
+        'Japan': {
+            'currency': 'JPY',
+            'language': 'Japanese',
+            'best_time': 'Spring (March-May) and Fall (September-November)',
+            'cultural_notes': 'Bowing is customary, remove shoes indoors, quiet on public transport',
+            'visa_info': 'Tourist visa required for most countries'
+        },
+        'Thailand': {
+            'currency': 'THB',
+            'language': 'Thai',
+            'best_time': 'Cool season (November-February)',
+            'cultural_notes': 'Dress modestly at temples, wai greeting, respect for monarchy',
+            'visa_info': 'Visa on arrival for many countries'
+        },
+        'India': {
+            'currency': 'INR',
+            'language': 'Hindi/English',
+            'best_time': 'Winter (October-March)',
+            'cultural_notes': 'Diverse cultures, respect religious customs, bargaining common',
+            'visa_info': 'E-visa available for most countries'
+        },
+        'United Kingdom': {
+            'currency': 'GBP',
+            'language': 'English',
+            'best_time': 'Late spring to early autumn (May-September)',
+            'cultural_notes': 'Queuing culture, pub etiquette, politeness valued',
+            'visa_info': 'Visa required for most non-EU countries'
+        },
+        'France': {
+            'currency': 'EUR',
+            'language': 'French',
+            'best_time': 'Late spring to early autumn (May-September)',
+            'cultural_notes': 'Greeting with kisses, dining etiquette, fashion conscious',
+            'visa_info': 'Schengen visa required for most countries'
+        },
+        'Italy': {
+            'currency': 'EUR',
+            'language': 'Italian',
+            'best_time': 'Spring (April-June) and Fall (September-October)',
+            'cultural_notes': 'Family-oriented, dining traditions, art appreciation',
+            'visa_info': 'Schengen visa required for most countries'
+        },
+        'Spain': {
+            'currency': 'EUR',
+            'language': 'Spanish',
+            'best_time': 'Spring (March-May) and Fall (September-November)',
+            'cultural_notes': 'Siesta culture, late dining, social gatherings',
+            'visa_info': 'Schengen visa required for most countries'
+        },
+        'Germany': {
+            'currency': 'EUR',
+            'language': 'German',
+            'best_time': 'Late spring to early autumn (May-September)',
+            'cultural_notes': 'Punctuality valued, direct communication, recycling important',
+            'visa_info': 'Schengen visa required for most countries'
+        },
+        'Australia': {
+            'currency': 'AUD',
+            'language': 'English',
+            'best_time': 'Spring (September-November) and Fall (March-May)',
+            'cultural_notes': 'Laid-back culture, outdoor lifestyle, tipping not mandatory',
+            'visa_info': 'ETA or visa required for most countries'
+        },
+        'United States': {
+            'currency': 'USD',
+            'language': 'English',
+            'best_time': 'Varies by region',
+            'cultural_notes': 'Tipping culture, diverse regions, friendly demeanor',
+            'visa_info': 'ESTA or visa required for most countries'
+        }
+    }
 
-def get_budget_ranges(country_name):
-    """Get budget ranges for a specific country"""
-    country_info = COUNTRY_DATA.get(country_name)
-    if country_info:
-        return country_info.get("budget_ranges", {})
-    return {}
+    return country_data.get(country, {
+        'currency': 'USD',
+        'language': 'Local language',
+        'best_time': 'Year-round',
+        'cultural_notes': 'Research local customs',
+        'visa_info': 'Check visa requirements'
+    })
 
-def get_popular_destinations(country_name):
-    """Get popular destinations for a specific country"""
-    country_info = COUNTRY_DATA.get(country_name)
-    if country_info:
-        return country_info.get("popular_destinations", [])
-    return []
+def get_popular_destinations(country):
+    """Get popular destinations for a country."""
+    destinations = {
+        'Japan': ['Tokyo', 'Kyoto', 'Osaka', 'Hiroshima', 'Nara'],
+        'Thailand': ['Bangkok', 'Chiang Mai', 'Phuket', 'Koh Samui', 'Pattaya'],
+        'India': ['Delhi', 'Mumbai', 'Jaipur', 'Agra', 'Goa'],
+        'United Kingdom': ['London', 'Edinburgh', 'Manchester', 'Bath', 'York'],
+        'France': ['Paris', 'Nice', 'Lyon', 'Marseille', 'Bordeaux'],
+        'Italy': ['Rome', 'Florence', 'Venice', 'Milan', 'Naples'],
+        'Spain': ['Madrid', 'Barcelona', 'Seville', 'Valencia', 'Bilbao'],
+        'Germany': ['Berlin', 'Munich', 'Hamburg', 'Cologne', 'Frankfurt'],
+        'Australia': ['Sydney', 'Melbourne', 'Brisbane', 'Perth', 'Adelaide'],
+        'United States': ['New York', 'Los Angeles', 'Chicago', 'San Francisco', 'Miami']
+    }
+
+    return destinations.get(country, [f'Capital of {country}', f'Major city in {country}'])
+
+def get_budget_ranges(country):
+    """Get budget ranges for a country."""
+    ranges = {
+        'Japan': {'budget': 60, 'mid_range': 120, 'luxury': 300, 'ultra_luxury': 600},
+        'Thailand': {'budget': 25, 'mid_range': 50, 'luxury': 150, 'ultra_luxury': 400},
+        'India': {'budget': 15, 'mid_range': 40, 'luxury': 120, 'ultra_luxury': 300},
+        'United Kingdom': {'budget': 50, 'mid_range': 100, 'luxury': 250, 'ultra_luxury': 500},
+        'France': {'budget': 60, 'mid_range': 120, 'luxury': 280, 'ultra_luxury': 550},
+        'Italy': {'budget': 50, 'mid_range': 100, 'luxury': 220, 'ultra_luxury': 450},
+        'Spain': {'budget': 45, 'mid_range': 90, 'luxury': 200, 'ultra_luxury': 400},
+        'Germany': {'budget': 55, 'mid_range': 110, 'luxury': 250, 'ultra_luxury': 500},
+        'Australia': {'budget': 70, 'mid_range': 140, 'luxury': 350, 'ultra_luxury': 700},
+        'United States': {'budget': 60, 'mid_range': 120, 'luxury': 300, 'ultra_luxury': 600}
+    }
+
+    return ranges.get(country, {'budget': 40, 'mid_range': 80, 'luxury': 200, 'ultra_luxury': 400})
 
 def suggest_daily_budget(country_name, budget_type="mid_range"):
     """Suggest daily budget based on country and budget type"""

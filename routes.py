@@ -1,3 +1,4 @@
+
 from flask import render_template, request, session, redirect, url_for, flash, jsonify
 from datetime import datetime
 import uuid
@@ -40,6 +41,9 @@ def preferences():
                 flash('Please select at least one interest', 'error')
                 return render_template('preferences.html')
             
+            # Get country info first
+            country_info = get_country_info(request.form.get('destination_country'))
+            
             # Create travel preference record
             preference = TravelPreference(
                 session_id=session['session_id'],
@@ -60,10 +64,9 @@ def preferences():
             session['preference_id'] = preference.id
             session['destination_country'] = preference.destination_country
             session['budget_type'] = preference.budget_type
-            session['budget_currency'] = country_info.get('currency', 'USD') if country_info else 'USD'
+            session['budget_currency'] = country_info.get('currency', 'USD')
             
-            # Get country info and popular destinations
-            country_info = get_country_info(preference.destination_country)
+            # Get popular destinations
             popular_destinations = get_popular_destinations(preference.destination_country)
             
             # Get AI recommendations
@@ -86,7 +89,7 @@ def preferences():
             # Add image URLs and colors to recommendations
             enhanced_recommendations = []
             for rec in recommendations:
-                rec_dict = rec.dict() if hasattr(rec, 'dict') else rec
+                rec_dict = rec.dict() if hasattr(rec, 'dict') else rec.__dict__
                 rec_dict['image_url'] = get_destination_image_url(rec_dict['destination'])
                 rec_dict['colors'] = get_destination_colors(rec_dict['destination'])
                 enhanced_recommendations.append(rec_dict)
