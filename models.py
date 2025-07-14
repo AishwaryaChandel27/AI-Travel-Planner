@@ -3,6 +3,7 @@ from datetime import datetime
 from sqlalchemy import JSON
 
 class TravelPreference(db.Model):
+    __tablename__ = 'travel_preference'
     id = db.Column(db.Integer, primary_key=True)
     session_id = db.Column(db.String(255), nullable=False)
     destination_country = db.Column(db.String(255))
@@ -17,6 +18,7 @@ class TravelPreference(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Itinerary(db.Model):
+    __tablename__ = 'itinerary'
     id = db.Column(db.Integer, primary_key=True)
     session_id = db.Column(db.String(255), nullable=False)
     preference_id = db.Column(db.Integer, db.ForeignKey('travel_preference.id'), nullable=False)
@@ -31,6 +33,7 @@ class Itinerary(db.Model):
     preference = db.relationship('TravelPreference', backref='itineraries')
 
 class Booking(db.Model):
+    __tablename__ = 'booking'
     id = db.Column(db.Integer, primary_key=True)
     session_id = db.Column(db.String(255), nullable=False)
     itinerary_id = db.Column(db.Integer, db.ForeignKey('itinerary.id'), nullable=False)
