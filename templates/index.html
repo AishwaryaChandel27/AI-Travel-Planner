@@ -4,123 +4,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Travel Assistant</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>AI Travel Assistant - Your Personal Travel Companion</title>
+    <meta name="description" content="Get personalized travel plans and recommendations powered by AI. Plan your perfect trip with our intelligent travel assistant.">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✈️</text></svg>">
 </head>
 <body>
-    <div class="container mt-5">
+    <!-- Header Section -->
+    <header class="container mt-4">
         <div class="row justify-content-center">
-            <div class="col-lg-8">
+            <div class="col-lg-10">
                 <div class="text-center mb-5">
-                    <i class="fas fa-plane travel-icon mb-3"></i>
-                    <h1 class="display-4 fw-bold">AI Travel Assistant</h1>
-                    <p class="lead text-muted">Get personalized travel plans and recommendations powered by AI</p>
-                </div>
-
-                <!-- Travel Plan Generator -->
-                <div class="card shadow-lg mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <h3 class="card-title mb-0">
-                            <i class="fas fa-magic me-2"></i>
-                            Generate Travel Plan
-                        </h3>
+                    <div class="mb-4">
+                        <i class="fas fa-plane travel-icon"></i>
                     </div>
-                    <div class="card-body">
-                        <form id="planForm">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="destination" class="form-label">Destination *</label>
-                                    <input type="text" class="form-control" id="destination" name="destination" 
-                                           placeholder="e.g., Tokyo, Japan" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="duration" class="form-label">Duration</label>
-                                    <input type="text" class="form-control" id="duration" name="duration" 
-                                           placeholder="e.g., 7 days">
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="budget" class="form-label">Budget</label>
-                                    <input type="text" class="form-control" id="budget" name="budget" 
-                                           placeholder="e.g., $2000">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="interests" class="form-label">Interests</label>
-                                    <input type="text" class="form-control" id="interests" name="interests" 
-                                           placeholder="e.g., culture, food, adventure">
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="additional_info" class="form-label">Additional Information</label>
-                                <textarea class="form-control" id="additional_info" name="additional_info" rows="3" 
-                                          placeholder="Any special requirements, preferences, or questions..."></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-lg w-100">
-                                <i class="fas fa-wand-magic-sparkles me-2"></i>
-                                Generate Travel Plan
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Quick Questions -->
-                <div class="card shadow-lg mb-4">
-                    <div class="card-header bg-success text-white">
-                        <h3 class="card-title mb-0">
-                            <i class="fas fa-question-circle me-2"></i>
-                            Ask a Travel Question
-                        </h3>
-                    </div>
-                    <div class="card-body">
-                        <form id="questionForm">
-                            <div class="mb-3">
-                                <label for="question" class="form-label">Your Question</label>
-                                <textarea class="form-control" id="question" name="question" rows="3" 
-                                          placeholder="e.g., What's the best time to visit Bali?" required></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-success btn-lg w-100">
-                                <i class="fas fa-paper-plane me-2"></i>
-                                Ask Question
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Loading -->
-                <div id="loading" class="text-center" style="display: none;">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p class="mt-2">Generating your personalized travel response...</p>
-                </div>
-
-                <!-- AI Response -->
-                <div id="responseContainer" class="card shadow-lg" style="display: none;">
-                    <div class="card-header bg-info text-white">
-                        <h3 class="card-title mb-0">
-                            <i class="fas fa-robot me-2"></i>
-                            AI Travel Recommendation
-                        </h3>
-                    </div>
-                    <div class="card-body">
-                        <div id="responseContent" class="response-content"></div>
-                        <hr>
-                        <div class="text-center">
-                            <button class="btn btn-outline-primary" onclick="clearResponse()">
-                                <i class="fas fa-refresh me-2"></i>
-                                Ask Another Question
-                            </button>
+                    <h1 class="display-4 fw-bold mb-3">AI Travel Assistant</h1>
+                    <p class="lead mb-4">Your Personal Travel Companion</p>
+                    <div class="row justify-content-center">
+                        <div class="col-md-8">
+                            <p class="text-white-50">
+                                Discover amazing destinations, create personalized itineraries, and get expert travel advice 
+                                powered by artificial intelligence. Start your journey today!
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </header>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Main Content -->
+    <main class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                
+                <!-- Travel Plan Generator -->
+                <div class="card shadow-lg mb-5">
+                    <div class="card-header bg-primary text-white">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-magic me-3" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <h3 class="card-title mb-1">Generate Travel Plan</h3>
+                                <p class="mb-0 opacity-75">Create a personalized itinerary tailored to your preferences</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form id="planForm">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label for="destination" class="form-label">
+                                        <i class="fas fa-map-marker-alt me-2"></i>Destination *
+                                    </label>
+                                    <input type="text" class="form-control" id="destination" name="destination" 
+                                           placeholder="e.g., Tokyo, Japan" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="duration" class="form-label">
+                                        <i class="fas fa-calendar-alt me-2"></i>Duration
+                                    </label>
+                                    <input type="text" class="form-control" id="duration" name="duration" 
+                                           placeholder="e.g., 7 days">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="budget" class="form-label">
+                                        <i class="fas fa-dollar-sign me-2"></i>Budget
+                                    </label>
+                                    <input type="text" class="form-control" id="budget" name="budget" 
+                                           placeholder="e.g., $2000">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="interests" class="form-label">
+                                        <i class="fas fa-heart me-2"></i>Interests
+                                    </label>
+                                    <input type="text" class="form-control" id="interests" name="interests" 
+                                           placeholder="e.g., culture, food, adventure">
+                                </div>
+                                <div class="col-12">
+                                    <label for="additional_info" class="form-label">
+                                        <i class="fas fa-info-circle me-2"></i>Additional Information
+                                    </label>
+                                    <textarea class="form-control" id="additional_info" name="additional_info" rows="4" 
+                                              placeholder="Tell us about any special requirements, dietary restrictions, accessibility needs, or specific questions you have..."></textarea>
+                                </div>
+                            </div>
+                            <hr class="my-4">
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary btn-lg px-5">
+                                    <i class="fas fa-wand-magic-sparkles me-2"></i>
+                                    Generate My Travel Plan
+                                </button>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-lock me-1"></i>
+                                        Your information is secure and never stored
+                                    </small>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Quick Questions -->
+                <div class="card shadow-lg mb-5">
+                    <div class="card-header bg-success text-white">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-question-circle me-3" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <h3 class="card-title mb-1">Ask a Travel Question</h3>
+                                <p class="mb-0 opacity-75">Get instant answers to your travel queries</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form id="questionForm">
+                            <div class="mb-4">
+                                <label for="question" class="form-label">
+                                    <i class="fas fa-comment me-2"></i>Your Question
+                                </label>
+                                <textarea class="form-control" id="question" name="question" rows="4" 
+                                          placeholder="Ask me anything about travel! For example:
+• What's the best time to visit Bali?
+• How much should I budget for a week in Europe?
+• What are the must-see attractions in New York?
+• Are there any travel restrictions I should know about?" required></textarea>
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-success btn-lg px-5">
+                                    <i class="fas fa-paper-plane me-2"></i>
+                                    Get My Answer
+                                </button>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>
+                                        Average response time: 2-3 seconds
+                                    </small>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Features Section -->
+                <div class="card shadow-lg mb-5 glass-effect">
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <h3 class="text-gradient">Why Choose Our AI Travel Assistant?</h3>
+                            <p class="text-muted">Experience the future of travel planning</p>
+                        </div>
+                        <div class="row g-4">
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <i class="fas fa-brain text-primary mb-3" style="font-size: 2.5rem;"></i>
+                                    <h5>AI-Powered Intelligence</h5>
+                                    <p class="text-muted">Advanced algorithms analyze your preferences to create personalized recommendations</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <i class="fas fa-globe text-success mb-3" style="font-size: 2.5rem;"></i>
+                                    <h5>Global Coverage</h5>
+                                    <p class="text-muted">Get expert advice for destinations worldwide, from hidden gems to popular hotspots</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <i class="fas fa-clock text-info mb-3" style="font-size: 2.5rem;"></i>
+                                    <h5>Instant Results</h5>
+                                    <p class="text-muted">Get comprehensive travel plans and answers in seconds, not hours</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading Animation -->
+                <div id="loading" class="text-center" style="display: none;">
+                    <!-- Loading content will be injected by JavaScript -->
+                </div>
+
+                <!-- AI Response -->
+                <div id="responseContainer" class="card shadow-lg mb-5" style="display: none;">
+                    <div class="card-header bg-info text-white">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h3 class="card-title mb-0">
+                                <i class="fas fa-robot me-2"></i>
+                                AI Travel Recommendation
+                            </h3>
+                            <div class="badge bg-light text-dark">
+                                <i class="fas fa-sparkles me-1"></i>
+                                AI Generated
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="responseContent" class="response-content mb-4"></div>
+                        <hr>
+                        <div class="text-center">
+                            <button class="btn btn-outline-primary me-2" onclick="clearResponse()">
+                                <i class="fas fa-refresh me-2"></i>
+                                Ask Another Question
+                            </button>
+                            <button class="btn btn-outline-success" onclick="window.print()">
+                                <i class="fas fa-print me-2"></i>
+                                Print Plan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="container mt-5 mb-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="text-center text-white-50">
+                    <p class="mb-2">
+                        <i class="fas fa-heart text-danger me-1"></i>
+                        Made with love for travelers worldwide
+                    </p>
+                    <p class="mb-0">
+                        <i class="fas fa-shield-alt me-1"></i>
+                        Powered by Google Gemini AI | 
+                        <i class="fas fa-lock me-1"></i>
+                        Your privacy is protected
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>
