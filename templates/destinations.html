@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Destination Recommendations - AI Travel Planner{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="destinations-header mb-4">
+                <h1>
+                    <i class="fas fa-compass me-2"></i>AI-Recommended Destinations
+                </h1>
+                <p class="lead text-muted">
+                    Based on your preferences, here are the perfect destinations for your next adventure
+                </p>
+            </div>
+
+            {% if recommendations %}
+                <div class="destinations-grid">
+                    {% for recommendation in recommendations %}
+                    <div class="card mb-4 destination-card">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h4 class="mb-0">
+                                    <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+                                    {{ recommendation.destination }}
+                                </h4>
+                                <span class="badge bg-success">
+                                    <i class="fas fa-thumbs-up me-1"></i>AI Recommended
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <!-- Reasons -->
+                                    <div class="reasons-section mb-4">
+                                        <h6 class="text-primary">
+                                            <i class="fas fa-star me-2"></i>Why This Destination is Perfect for You
+                                        </h6>
+                                        <ul class="list-unstyled">
+                                            {% for reason in recommendation.reasons %}
+                                            <li class="mb-2">
+                                                <i class="fas fa-check-circle text-success me-2"></i>
+                                                {{ reason }}
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+
+                                    <!-- Highlights -->
+                                    <div class="highlights-section mb-4">
+                                        <h6 class="text-info">
+                                            <i class="fas fa-camera me-2"></i>Top Highlights
+                                        </h6>
+                                        <div class="row">
+                                            {% for highlight in recommendation.highlights %}
+                                            <div class="col-md-6 mb-2">
+                                                <div class="highlight-item">
+                                                    <i class="fas fa-map-pin text-warning me-2"></i>
+                                                    {{ highlight }}
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                    <!-- Best Time to Visit -->
+                                    <div class="timing-section mb-3">
+                                        <h6 class="text-success">
+                                            <i class="fas fa-calendar-alt me-2"></i>Best Time to Visit
+                                        </h6>
+                                        <p class="text-muted">{{ recommendation.best_time_to_visit }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <!-- Budget Breakdown -->
+                                    <div class="budget-section">
+                                        <h6 class="text-warning">
+                                            <i class="fas fa-dollar-sign me-2"></i>Estimated Budget
+                                        </h6>
+                                        {% if recommendation.estimated_budget %}
+                                            <div class="budget-breakdown">
+                                                {% for category, amount in recommendation.estimated_budget.items() %}
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <small class="text-muted text-capitalize">{{ category.replace('_', ' ') }}</small>
+                                                    <small class="fw-bold">${{ amount }}</small>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            <p class="text-muted">Budget information not available</p>
+                                        {% endif %}
+                                    </div>
+
+                                    <!-- Select Button -->
+                                    <div class="selection-section mt-4">
+                                        <a href="{{ url_for('select_destination', destination_index=loop.index0) }}" 
+                                           class="btn btn-primary w-100">
+                                            <i class="fas fa-plane me-2"></i>
+                                            Choose This Destination
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Navigation -->
+                <div class="navigation-section mt-4">
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('preferences') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Preferences
+                        </a>
+                        <a href="{{ url_for('reset') }}" class="btn btn-outline-danger">
+                            <i class="fas fa-refresh me-2"></i>Start Over
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="empty-state text-center py-5">
+                    <i class="fas fa-search fa-5x text-muted mb-4"></i>
+                    <h3>No Recommendations Available</h3>
+                    <p class="text-muted mb-4">
+                        We couldn't generate destination recommendations at this time. 
+                        Please try again with different preferences.
+                    </p>
+                    <a href="{{ url_for('preferences') }}" class="btn btn-primary">
+                        <i class="fas fa-cog me-2"></i>Update Preferences
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.destination-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.destination-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.budget-breakdown {
+    background: var(--bs-light);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--bs-border-color);
+}
+
+.highlight-item {
+    padding: 0.5rem;
+    background: var(--bs-light);
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+}
+
+.reasons-section ul li {
+    padding: 0.25rem 0;
+}
+
+@media (max-width: 768px) {
+    .destinations-grid .card {
+        margin-bottom: 2rem;
+    }
+    
+    .navigation-section .d-flex {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
+</style>
+{% endblock %}

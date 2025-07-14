@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block title %}{{ itinerary.title }} - AI Travel Planner{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="itinerary-header mb-4">
+                <h1>
+                    <i class="fas fa-map-marked-alt me-2"></i>{{ itinerary.title }}
+                </h1>
+                <p class="lead text-muted">{{ itinerary.description }}</p>
+                <div class="d-flex gap-3 mb-3">
+                    <span class="badge bg-primary">
+                        <i class="fas fa-calendar me-1"></i>
+                        {{ itinerary.preference.start_date.strftime('%B %d') }} - {{ itinerary.preference.end_date.strftime('%B %d, %Y') }}
+                    </span>
+                    <span class="badge bg-success">
+                        <i class="fas fa-users me-1"></i>{{ itinerary.preference.group_size }} People
+                    </span>
+                    <span class="badge bg-warning">
+                        <i class="fas fa-dollar-sign me-1"></i>${{ itinerary.preference.budget }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Daily Itinerary -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clock me-2"></i>Daily Itinerary
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if itinerary.activities %}
+                        {% for day in itinerary.activities %}
+                        <div class="day-item mb-4">
+                            <h6 class="day-title">
+                                <i class="fas fa-calendar-day me-2"></i>{{ day.day if day.day else 'Day ' + loop.index|string }}
+                            </h6>
+                            {% if day.activities %}
+                                <div class="activities-list">
+                                    {% for activity in day.activities %}
+                                    <div class="activity-item mb-2">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <strong>{{ activity.time if activity.time else 'Morning' }}</strong>
+                                                <span class="ms-2">{{ activity.activity if activity.activity else activity.name if activity.name else 'Activity' }}</span>
+                                            </div>
+                                            {% if activity.duration %}
+                                            <small class="text-muted">{{ activity.duration }}</small>
+                                            {% endif %}
+                                        </div>
+                                        {% if activity.description %}
+                                        <p class="text-muted mb-1">{{ activity.description }}</p>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted">No specific activities planned for this day.</p>
+                            {% endif %}
+                        </div>
+                        {% if not loop.last %}<hr>{% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No daily activities available. The AI is still processing your itinerary.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Budget Breakdown -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>Budget Breakdown
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if itinerary.budget_breakdown %}
+                        <div class="row g-3">
+                            {% for category, amount in itinerary.budget_breakdown.items() %}
+                            <div class="col-md-6">
+                                <div class="budget-item">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-capitalize">{{ category.replace('_', ' ') }}</span>
+                                        <strong>${{ amount }}</strong>
+                                    </div>
+                                    <div class="progress mt-1" style="height: 6px;">
+                                        <div class="progress-bar" role="progressbar" 
+                                             style="width: {{ (amount / itinerary.preference.budget * 100) }}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Budget breakdown is being calculated...</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recommended Restaurants -->
+            {% if itinerary.recommendations and itinerary.recommendations.restaurants %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-utensils me-2"></i>Recommended Restaurants
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% for restaurant in itinerary.recommendations.restaurants %}
+                        <div class="col-md-6">
+                            <div class="restaurant-item">
+                                <h6>{{ restaurant.name if restaurant.name else 'Restaurant' }}</h6>
+                                <p class="text-muted mb-1">{{ restaurant.cuisine if restaurant.cuisine else 'International Cuisine' }}</p>
+                                {% if restaurant.price_range %}
+                                <small class="text-success">{{ restaurant.price_range }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Travel Tips -->
+            {% if itinerary.recommendations and itinerary.recommendations.travel_tips %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>Travel Tips
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        {% for tip in itinerary.recommendations.travel_tips %}
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>{{ tip }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Booking Actions -->
+            <div class="booking-actions">
+                <h5 class="mb-3">
+                    <i class="fas fa-ticket-alt me-2"></i>Book Your Trip
+                </h5>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <a href="{{ url_for('book', booking_type='flights') }}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-plane me-2"></i>Book Flights
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{ url_for('book', booking_type='hotels') }}" class="btn btn-outline-success w-100">
+                            <i class="fas fa-bed me-2"></i>Book Hotels
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{ url_for('book', booking_type='activities') }}" class="btn btn-outline-warning w-100">
+                            <i class="fas fa-star me-2"></i>Book Activities
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Weather Information -->
+            {% if weather_info %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-cloud-sun me-2"></i>Weather in {{ weather_info.destination }}
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="current-weather mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h4 class="mb-0">{{ weather_info.current_temp }}°C</h4>
+                                <small class="text-muted">{{ weather_info.conditions }}</small>
+                            </div>
+                            <div class="text-end">
+                                <small class="text-muted">Humidity: {{ weather_info.humidity }}%</small><br>
+                                <small class="text-muted">Wind: {{ weather_info.wind_speed }} km/h</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="forecast">
+                        <h6 class="mb-2">5-Day Forecast</h6>
+                        {% for day in weather_info.forecast %}
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span>{{ day.day[:3] }}</span>
+                            <span class="text-muted">{{ day.condition }}</span>
+                            <span>{{ day.high }}°/{{ day.low }}°</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Available Activities -->
+            {% if activities %}
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-star me-2"></i>Available Activities
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% for activity in activities[:5] %}
+                    <div class="activity-suggestion mb-3">
+                        <h6 class="mb-1">{{ activity.name }}</h6>
+                        <p class="text-muted mb-1">{{ activity.description }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-success">${{ activity.price }}</small>
+                            <small class="text-warning">
+                                <i class="fas fa-star me-1"></i>{{ activity.rating }}
+                            </small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% if activities|length > 5 %}
+                    <a href="{{ url_for('book', booking_type='activities') }}" class="btn btn-sm btn-outline-primary">
+                        View All Activities
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

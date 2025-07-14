@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Travel Preferences - AI Travel Planner{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1 class="text-center mb-4">
+                <i class="fas fa-user-cog me-2"></i>Travel Preferences
+            </h1>
+            <p class="text-center text-muted mb-5">
+                Tell us about your travel preferences so we can create the perfect itinerary for you.
+            </p>
+
+            <form method="POST">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>Basic Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="budget" class="form-label">Budget (USD)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="budget" name="budget" 
+                                           min="100" max="50000" step="50" required value="2000">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="group_size" class="form-label">Group Size</label>
+                                <select class="form-select" id="group_size" name="group_size" required>
+                                    <option value="1">Solo (1 person)</option>
+                                    <option value="2" selected>Couple (2 people)</option>
+                                    <option value="3">Small Group (3-4 people)</option>
+                                    <option value="5">Large Group (5+ people)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="start_date" class="form-label">Start Date</label>
+                                <input type="date" class="form-control" id="start_date" name="start_date" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="end_date" class="form-label">End Date</label>
+                                <input type="date" class="form-control" id="end_date" name="end_date" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-heart me-2"></i>Interests & Activities
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3">Select all that interest you:</p>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="adventure" id="adventure" name="interests">
+                                    <label class="form-check-label" for="adventure">
+                                        <i class="fas fa-mountain me-2"></i>Adventure & Outdoor
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="culture" id="culture" name="interests">
+                                    <label class="form-check-label" for="culture">
+                                        <i class="fas fa-university me-2"></i>Culture & History
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="food" id="food" name="interests">
+                                    <label class="form-check-label" for="food">
+                                        <i class="fas fa-utensils me-2"></i>Food & Dining
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="nature" id="nature" name="interests">
+                                    <label class="form-check-label" for="nature">
+                                        <i class="fas fa-leaf me-2"></i>Nature & Wildlife
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="nightlife" id="nightlife" name="interests">
+                                    <label class="form-check-label" for="nightlife">
+                                        <i class="fas fa-cocktail me-2"></i>Nightlife & Entertainment
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="shopping" id="shopping" name="interests">
+                                    <label class="form-check-label" for="shopping">
+                                        <i class="fas fa-shopping-bag me-2"></i>Shopping
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="relaxation" id="relaxation" name="interests">
+                                    <label class="form-check-label" for="relaxation">
+                                        <i class="fas fa-spa me-2"></i>Relaxation & Wellness
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="art" id="art" name="interests">
+                                    <label class="form-check-label" for="art">
+                                        <i class="fas fa-palette me-2"></i>Art & Museums
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-bed me-2"></i>Accommodation & Transport
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="accommodation_type" class="form-label">Accommodation Preference</label>
+                                <select class="form-select" id="accommodation_type" name="accommodation_type" required>
+                                    <option value="hotel" selected>Hotel</option>
+                                    <option value="hostel">Hostel</option>
+                                    <option value="airbnb">Airbnb/Vacation Rental</option>
+                                    <option value="resort">Resort</option>
+                                    <option value="boutique">Boutique Hotel</option>
+                                    <option value="budget">Budget Hotel</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="transport_preference" class="form-label">Transport Preference</label>
+                                <select class="form-select" id="transport_preference" name="transport_preference" required>
+                                    <option value="public_transport" selected>Public Transport</option>
+                                    <option value="rental_car">Rental Car</option>
+                                    <option value="taxi_rideshare">Taxi/Rideshare</option>
+                                    <option value="walking">Walking</option>
+                                    <option value="bicycle">Bicycle</option>
+                                    <option value="mixed">Mixed Options</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-magic me-2"></i>Get AI Recommendations
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Set minimum date to today
+document.getElementById('start_date').min = new Date().toISOString().split('T')[0];
+document.getElementById('end_date').min = new Date().toISOString().split('T')[0];
+
+// Update end date minimum when start date changes
+document.getElementById('start_date').addEventListener('change', function() {
+    document.getElementById('end_date').min = this.value;
+});
+</script>
+{% endblock %}

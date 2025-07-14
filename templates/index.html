@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-section text-center py-5">
+    <div class="container">
+        <h1 class="display-4 mb-4">
+            <i class="fas fa-globe-americas me-3"></i>
+            AI Travel Planner
+        </h1>
+        <p class="lead mb-4">
+            Create personalized travel itineraries powered by artificial intelligence. 
+            Get destination recommendations, flight bookings, and detailed travel plans tailored to your preferences and budget.
+        </p>
+        <a href="{{ url_for('preferences') }}" class="btn btn-primary btn-lg">
+            <i class="fas fa-rocket me-2"></i>Start Planning Your Trip
+        </a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="features-grid">
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-brain fa-3x text-primary mb-3"></i>
+                                <h5 class="card-title">AI-Powered Recommendations</h5>
+                                <p class="card-text">
+                                    Get personalized destination suggestions based on your interests, budget, and travel style using Google Gemini AI.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-calendar-alt fa-3x text-success mb-3"></i>
+                                <h5 class="card-title">Detailed Itineraries</h5>
+                                <p class="card-text">
+                                    Receive comprehensive daily itineraries with activities, restaurant recommendations, and travel tips.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-dollar-sign fa-3x text-warning mb-3"></i>
+                                <h5 class="card-title">Budget Management</h5>
+                                <p class="card-text">
+                                    Track your travel expenses with detailed budget breakdowns and cost-effective recommendations.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="how-it-works mt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h2 class="text-center mb-5">How It Works</h2>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-start">
+                            <div class="step-number">1</div>
+                            <div class="ms-3">
+                                <h5>Share Your Preferences</h5>
+                                <p>Tell us about your budget, travel dates, interests, and group size.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-start">
+                            <div class="step-number">2</div>
+                            <div class="ms-3">
+                                <h5>Get AI Recommendations</h5>
+                                <p>Our AI analyzes your preferences and suggests perfect destinations.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-start">
+                            <div class="step-number">3</div>
+                            <div class="ms-3">
+                                <h5>Receive Detailed Itinerary</h5>
+                                <p>Get a comprehensive travel plan with activities, restaurants, and tips.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-start">
+                            <div class="step-number">4</div>
+                            <div class="ms-3">
+                                <h5>Book & Travel</h5>
+                                <p>Use our integrated booking system for flights, hotels, and activities.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="cta-section text-center mt-5 py-5">
+        <div class="container">
+            <h2 class="mb-4">Ready to Start Your Adventure?</h2>
+            <p class="lead mb-4">Let AI create the perfect travel experience for you</p>
+            <a href="{{ url_for('preferences') }}" class="btn btn-success btn-lg">
+                <i class="fas fa-map-marked-alt me-2"></i>Plan My Trip Now
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
