@@ -1,8 +1,14 @@
 
+#!/usr/bin/env python3
+"""
+AI Travel Assistant - Simple Travel Planning App
+"""
+
 from app import app
 from routes import *
-import os
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    print("🌍 Starting AI Travel Assistant...")
+    print("📍 Visit: http://localhost:5000")
+    print("🔑 Make sure to set GEMINI_API_KEY in Secrets for AI features")
+    app.run(host='0.0.0.0', port=5000, debug=True)

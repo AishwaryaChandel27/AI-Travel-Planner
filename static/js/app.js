@@ -1,186 +1,90 @@
-// Travel Planner JavaScript
-
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize tooltips
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
+    const planForm = document.getElementById('planForm');
+    const questionForm = document.getElementById('questionForm');
+    const loading = document.getElementById('loading');
+    const responseContainer = document.getElementById('responseContainer');
+    const responseContent = document.getElementById('responseContent');
+
+    // Handle travel plan form submission
+    planForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        submitForm('/generate_plan', new FormData(planForm));
     });
 
-    // Initialize popovers
-    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
-    var popoverList = popoverTriggerList.map(function(popoverTriggerEl) {
-        return new bootstrap.Popover(popoverTriggerEl);
+    // Handle question form submission
+    questionForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        submitForm('/ask_question', new FormData(questionForm));
     });
 
-    // Form validation
-    const forms = document.querySelectorAll('.needs-validation');
-    Array.prototype.slice.call(forms).forEach(function(form) {
-        form.addEventListener('submit', function(event) {
-            if (!form.checkValidity()) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            form.classList.add('was-validated');
-        }, false);
-    });
+    function submitForm(url, formData) {
+        // Show loading
+        loading.style.display = 'block';
+        responseContainer.style.display = 'none';
 
-    // Budget slider functionality
-    const budgetSlider = document.getElementById('budget');
-    const budgetValue = document.getElementById('budgetValue');
-    if (budgetSlider && budgetValue) {
-        budgetSlider.addEventListener('input', function() {
-            budgetValue.textContent = '$' + this.value;
-        });
-    }
+        // Clear any existing alerts
+        clearAlerts();
 
-    // Date validation
-    const startDateInput = document.getElementById('start_date');
-    const endDateInput = document.getElementById('end_date');
-    
-    if (startDateInput && endDateInput) {
-        // Set minimum date to today
-        const today = new Date().toISOString().split('T')[0];
-        startDateInput.min = today;
-        endDateInput.min = today;
+        fetch(url, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            loading.style.display = 'none';
 
-        startDateInput.addEventListener('change', function() {
-            endDateInput.min = this.value;
-            
-            // Clear end date if it's before start date
-            if (endDateInput.value && endDateInput.value < this.value) {
-                endDateInput.value = '';
-            }
-        });
-    }
+            if (data.success) {
+                responseContent.textContent = data.response;
+                responseContainer.style.display = 'block';
 
-    // Interest selection validation
-    const interestCheckboxes = document.querySelectorAll('input[name="interests"]');
-    if (interestCheckboxes.length > 0) {
-        const preferencesForm = document.querySelector('form');
-        if (preferencesForm) {
-            preferencesForm.addEventListener('submit', function(event) {
-                const checkedInterests = document.querySelectorAll('input[name="interests"]:checked');
-                if (checkedInterests.length === 0) {
-                    event.preventDefault();
-                    showAlert('Please select at least one interest.', 'danger');
-                    return false;
-                }
-            });
-        }
-    }
-
-    // Loading states for forms
-    const submitButtons = document.querySelectorAll('button[type="submit"]');
-    submitButtons.forEach(function(button) {
-        button.addEventListener('click', function() {
-            const form = this.closest('form');
-            if (form && form.checkValidity()) {
-                showLoadingState(this);
-            }
-        });
-    });
-
-    // Booking confirmation
-    const bookingForms = document.querySelectorAll('form[action*="confirm_booking"]');
-    bookingForms.forEach(function(form) {
-        form.addEventListener('submit', function(event) {
-            if (!confirm('Are you sure you want to proceed with this booking?')) {
-                event.preventDefault();
-            }
-        });
-    });
-
-    // Smooth scrolling for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
+                // Scroll to response
+                responseContainer.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
                 });
+            } else {
+                showAlert('danger', data.error || 'An error occurred');
             }
-        });
-    });
-
-    // Auto-hide alerts
-    const alerts = document.querySelectorAll('.alert');
-    alerts.forEach(function(alert) {
-        if (alert.classList.contains('alert-success')) {
-            setTimeout(function() {
-                alert.style.transition = 'opacity 0.5s ease';
-                alert.style.opacity = '0';
-                setTimeout(function() {
-                    alert.remove();
-                }, 500);
-            }, 3000);
-        }
-    });
-
-    // Budget breakdown chart (if Chart.js is available)
-    const budgetChartCanvas = document.getElementById('budgetChart');
-    if (budgetChartCanvas && typeof Chart !== 'undefined') {
-        const budgetData = JSON.parse(budgetChartCanvas.dataset.budget || '{}');
-        createBudgetChart(budgetChartCanvas, budgetData);
-    }
-
-    // Lazy loading for images
-    const images = document.querySelectorAll('img[data-src]');
-    if ('IntersectionObserver' in window) {
-        const imageObserver = new IntersectionObserver(function(entries, observer) {
-            entries.forEach(function(entry) {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    img.src = img.dataset.src;
-                    img.classList.remove('lazy');
-                    observer.unobserve(img);
-                }
-            });
-        });
-
-        images.forEach(function(img) {
-            imageObserver.observe(img);
+        })
+        .catch(error => {
+            loading.style.display = 'none';
+            console.error('Error:', error);
+            showAlert('danger', 'Failed to connect to the server. Please try again.');
         });
     }
 
-    // Search functionality
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        searchInput.addEventListener('input', debounce(function() {
-            const searchTerm = this.value.toLowerCase();
-            const searchableItems = document.querySelectorAll('.searchable-item');
-            
-            searchableItems.forEach(function(item) {
-                const text = item.textContent.toLowerCase();
-                if (text.includes(searchTerm)) {
-                    item.style.display = '';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        }, 300));
+    function showAlert(type, message) {
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show`;
+        alert.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        document.querySelector('.container').insertBefore(alert, document.querySelector('.card'));
+
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            if (alert.parentNode) {
+                alert.remove();
+            }
+        }, 5000);
     }
 
-    // Price range filter
-    const priceRange = document.getElementById('priceRange');
-    if (priceRange) {
-        priceRange.addEventListener('input', function() {
-            const maxPrice = parseInt(this.value);
-            const priceItems = document.querySelectorAll('.price-item');
-            
-            priceItems.forEach(function(item) {
-                const price = parseInt(item.dataset.price);
-                if (price <= maxPrice) {
-                    item.style.display = '';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        });
+    function clearAlerts() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => alert.remove());
     }
 });
+
+function clearResponse() {
+    document.getElementById('responseContainer').style.display = 'none';
+    document.getElementById('planForm').reset();
+    document.getElementById('questionForm').reset();
+
+    // Scroll back to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
 // Utility functions
 function showAlert(message, type = 'info') {

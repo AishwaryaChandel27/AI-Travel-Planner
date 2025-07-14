@@ -1,385 +1,79 @@
-from flask import render_template, request, redirect, url_for, flash, session, jsonify
-from app import app, db
-from models import TravelPreference, Itinerary, Booking
-from gemini import get_destination_recommendations, generate_itinerary, get_travel_tips
-from travel_service import TravelService
-from country_data import get_country_info, get_popular_destinations, get_budget_ranges
-from destination_images import get_destination_image_url, get_destination_colors
+from flask import render_template, request, jsonify, flash, session
+from app import app
+from gemini import get_travel_response
 import uuid
-import json
 import logging
-from datetime import datetime
-
-travel_service = TravelService()
 
 @app.route('/')
 def index():
-    """Homepage with travel planner introduction."""
+    """Homepage with travel assistant interface."""
     return render_template('index.html')
 
-@app.route('/preferences', methods=['GET', 'POST'])
-def preferences():
-    """Handle travel preferences input."""
-    if request.method == 'POST':
-        # Generate session ID if not exists
-        if 'session_id' not in session:
-            session['session_id'] = str(uuid.uuid4())
-
-        # Parse form data
-        try:
-            start_date = datetime.strptime(request.form['start_date'], '%Y-%m-%d').date()
-            end_date = datetime.strptime(request.form['end_date'], '%Y-%m-%d').date()
-
-            if start_date >= end_date:
-                flash('End date must be after start date', 'error')
-                return render_template('preferences.html')
-
-            # Get interests from form
-            interests = request.form.getlist('interests')
-            if not interests:
-                flash('Please select at least one interest', 'error')
-                return render_template('preferences.html')
-
-            # Get country info first
-            country_info = get_country_info(request.form.get('destination_country'))
-
-            # Create travel preference record
-            preference = TravelPreference(
-                session_id=session['session_id'],
-                destination_country=request.form.get('destination_country'),
-                budget_type=request.form.get('budget_type'),
-                budget=float(request.form['budget']),
-                start_date=start_date,
-                end_date=end_date,
-                group_size=int(request.form['group_size']),
-                accommodation_type=request.form['accommodation_type'],
-                transport_preference=request.form['transport_preference']
-            )
-            preference.interests_list = interests
-
-            db.session.add(preference)
-            db.session.commit()
-
-            session['preference_id'] = preference.id
-            session['destination_country'] = preference.destination_country
-            session['budget_type'] = preference.budget_type
-            session['budget_currency'] = country_info.get('currency', 'USD')
-
-            # Get popular destinations
-            popular_destinations = get_popular_destinations(preference.destination_country)
-
-            # Get AI recommendations
-            preferences_dict = {
-                'destination_country': preference.destination_country,
-                'budget_type': preference.budget_type,
-                'budget': preference.budget,
-                'start_date': preference.start_date,
-                'end_date': preference.end_date,
-                'group_size': preference.group_size,
-                'interests': preference.interests,
-                'accommodation_type': preference.accommodation_type,
-                'transport_preference': preference.transport_preference,
-                'country_info': country_info,
-                'popular_destinations': popular_destinations
-            }
-
-            recommendations = get_destination_recommendations(preferences_dict)
-
-            # Add image URLs and colors to recommendations
-            enhanced_recommendations = []
-            for rec in recommendations:
-                try:
-                    if hasattr(rec, 'dict'):
-                        rec_dict = rec.dict()
-                    elif hasattr(rec, '__dict__'):
-                        rec_dict = rec.__dict__
-                    else:
-                        rec_dict = rec if isinstance(rec, dict) else {'destination': str(rec)}
-
-                    if 'destination' in rec_dict:
-                        rec_dict['image_url'] = get_destination_image_url(rec_dict['destination'])
-                        rec_dict['colors'] = get_destination_colors(rec_dict['destination'])
-                    enhanced_recommendations.append(rec_dict)
-                except Exception as e:
-                    logging.warning(f"Error processing recommendation {rec}: {e}")
-                    continue
-
-            session['recommendations'] = enhanced_recommendations
-
-            return redirect(url_for('destinations'))
-
-        except ValueError as e:
-            flash(f'Invalid input: {str(e)}', 'error')
-            return render_template('preferences.html')
-        except Exception as e:
-            logging.error(f"Error processing preferences: {e}")
-            flash('An error occurred while processing your preferences. Please try again.', 'error')
-            return render_template('preferences.html')
-
-    return render_template('preferences.html')
-
-@app.route('/destinations')
-def destinations():
-    if 'recommendations' not in session:
-        flash('Please fill in your preferences first', 'error')
-        return redirect(url_for('preferences'))
-
+@app.route('/generate_plan', methods=['POST'])
+def generate_plan():
+    """Generate AI travel plan based on user input."""
     try:
-        recommendations = session['recommendations']
-        if not recommendations or len(recommendations) == 0:
-            flash('Unable to generate AI recommendations. Please check your API key configuration.', 'warning')
-            recommendations = [
-                {
-                    'destination': 'Paris, France',
-                    'reasons': ['Rich cultural heritage', 'World-class cuisine', 'Iconic landmarks'],
-                    'best_time_to_visit': 'April to October',
-                    'estimated_budget': {'accommodation': 80, 'food': 50, 'activities': 40, 'transport': 30},
-                    'highlights': ['Eiffel Tower', 'Louvre Museum', 'Seine River Cruise'],
-                    'image_url': 'https://images.unsplash.com/photo-1549813784-80d5d82d85bb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-                },
-                {
-                    'destination': 'Tokyo, Japan',
-                    'reasons': ['Unique culture blend', 'Amazing food scene', 'Modern technology'],
-                    'best_time_to_visit': 'March to May, September to November',
-                    'estimated_budget': {'accommodation': 90, 'food': 60, 'activities': 50, 'transport': 20},
-                    'highlights': ['Shibuya Crossing', 'Senso-ji Temple', 'Tsukiji Market'],
-                    'image_url': 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-                },
-                {
-                    'destination': 'Barcelona, Spain',
-                    'reasons': ['Stunning architecture', 'Vibrant nightlife', 'Mediterranean cuisine'],
-                    'best_time_to_visit': 'May to September',
-                    'estimated_budget': {'accommodation': 70, 'food': 45, 'activities': 35, 'transport': 25},
-                    'highlights': ['Sagrada Familia', 'Park Güell', 'Las Ramblas'],
-                    'image_url': 'https://images.unsplash.com/photo-1539650116574-75c0c6698ecf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-                }
-            ]
+        # Get form data
+        destination = request.form.get('destination', '').strip()
+        duration = request.form.get('duration', '').strip()
+        budget = request.form.get('budget', '').strip()
+        interests = request.form.get('interests', '').strip()
+        additional_info = request.form.get('additional_info', '').strip()
 
-        return render_template('destinations.html', recommendations=recommendations)
+        if not destination:
+            return jsonify({'error': 'Destination is required'}), 400
+
+        # Create user prompt
+        user_prompt = f"""
+        Create a detailed travel plan for:
+        Destination: {destination}
+        Duration: {duration if duration else 'Not specified'}
+        Budget: {budget if budget else 'Not specified'}
+        Interests: {interests if interests else 'General tourism'}
+        Additional Information: {additional_info if additional_info else 'None'}
+
+        Please provide a comprehensive travel plan including:
+        1. Best time to visit
+        2. Daily itinerary suggestions
+        3. Budget breakdown
+        4. Must-see attractions
+        5. Local cuisine recommendations
+        6. Travel tips
+        """
+
+        # Get AI response
+        ai_response = get_travel_response(user_prompt)
+
+        return jsonify({
+            'success': True,
+            'response': ai_response,
+            'destination': destination
+        })
 
     except Exception as e:
-        logging.error(f"Error selecting destination: {e}")
-        flash('An error occurred while generating your destinations. Please try again.', 'error')
-        return redirect(url_for('preferences'))
+        logging.error(f"Error generating travel plan: {e}")
+        return jsonify({'error': 'Failed to generate travel plan. Please try again.'}), 500
 
-@app.route('/select_destination/<int:destination_index>')
-def select_destination(destination_index):
-    """Select a destination and generate itinerary."""
-    if 'recommendations' not in session or 'preference_id' not in session:
-        flash('Please start over with your preferences', 'error')
-        return redirect(url_for('preferences'))
-
+@app.route('/ask_question', methods=['POST'])
+def ask_question():
+    """Handle general travel questions."""
     try:
-        recommendations = session['recommendations']
-        if destination_index >= len(recommendations):
-            flash('Invalid destination selection', 'error')
-            return redirect(url_for('destinations'))
+        question = request.form.get('question', '').strip()
 
-        selected_destination = recommendations[destination_index]
+        if not question:
+            return jsonify({'error': 'Question is required'}), 400
 
-        # Get preference from database
-        preference = TravelPreference.query.get(session['preference_id'])
-        if not preference:
-            flash('Preference not found', 'error')
-            return redirect(url_for('preferences'))
+        # Get AI response
+        ai_response = get_travel_response(f"Travel question: {question}")
 
-        # Generate detailed itinerary
-        country_info = get_country_info(preference.destination_country)
-        preferences_dict = {
-            'destination_country': preference.destination_country,
-            'budget_type': preference.budget_type,
-            'budget': preference.budget,
-            'start_date': preference.start_date,
-            'end_date': preference.end_date,
-            'group_size': preference.group_size,
-            'interests': preference.interests,
-            'accommodation_type': preference.accommodation_type,
-            'transport_preference': preference.transport_preference,
-            'country_info': country_info
-        }
-
-        itinerary_plan = generate_itinerary(preferences_dict, selected_destination['destination'])
-        travel_tips = get_travel_tips(selected_destination['destination'], preferences_dict)
-
-        # Create itinerary record
-        itinerary = Itinerary(
-            session_id=session['session_id'],
-            preference_id=preference.id,
-            destination=selected_destination['destination'],
-            title=f"{selected_destination['destination']} Adventure",
-            description=f"Personalized itinerary for {selected_destination['destination']}"
-        )
-
-        # Set activities
-        if hasattr(itinerary_plan, 'daily_activities'):
-            itinerary.activities_list = itinerary_plan.daily_activities
-        elif hasattr(itinerary_plan, 'activities'):
-            itinerary.activities_list = itinerary_plan.activities
-        else:
-            itinerary.activities_list = []
-
-        # Set budget breakdown
-        if hasattr(itinerary_plan, 'budget_breakdown'):
-            itinerary.budget_breakdown_dict = itinerary_plan.budget_breakdown
-        elif hasattr(itinerary_plan, 'budget'):
-            itinerary.budget_breakdown_dict = itinerary_plan.budget
-        else:
-            itinerary.budget_breakdown_dict = {}
-
-        # Set recommendations
-        recommendations = {
-            'restaurants': getattr(itinerary_plan, 'recommended_restaurants', []),
-            'accommodations': getattr(itinerary_plan, 'accommodation_suggestions', []),
-            'travel_tips': travel_tips if isinstance(travel_tips, list) else [travel_tips] if travel_tips else []
-        }
-        itinerary.recommendations_dict = recommendations
-
-        db.session.add(itinerary)
-        db.session.commit()
-
-        session['itinerary_id'] = itinerary.id
-
-        return redirect(url_for('itinerary'))
+        return jsonify({
+            'success': True,
+            'response': ai_response
+        })
 
     except Exception as e:
-        logging.error(f"Error selecting destination: {e}")
-        flash('An error occurred while generating your itinerary. Please try again.', 'error')
-        return redirect(url_for('destinations'))
-
-@app.route('/itinerary')
-def itinerary():
-    """Display generated itinerary."""
-    if 'itinerary_id' not in session:
-        flash('No itinerary found. Please start over.', 'error')
-        return redirect(url_for('preferences'))
-
-    itinerary = Itinerary.query.get(session['itinerary_id'])
-    if not itinerary:
-        flash('Itinerary not found', 'error')
-        return redirect(url_for('preferences'))
-
-    # Get weather information
-    weather_info = travel_service.get_weather_info(itinerary.destination)
-
-    # Get available activities
-    activities = travel_service.get_activities(itinerary.destination, itinerary.preference.interests)
-
-    return render_template('itinerary.html', 
-                         itinerary=itinerary, 
-                         weather_info=weather_info,
-                         activities=activities)
-
-@app.route('/book/<booking_type>')
-def book(booking_type):
-    """Display booking options (flights, hotels, activities)."""
-    if 'itinerary_id' not in session:
-        flash('No itinerary found. Please start over.', 'error')
-        return redirect(url_for('preferences'))
-
-    itinerary = Itinerary.query.get(session['itinerary_id'])
-    if not itinerary:
-        flash('Itinerary not found', 'error')
-        return redirect(url_for('preferences'))
-
-    if booking_type == 'flights':
-        # Mock flight search
-        flights = travel_service.search_flights(
-            origin="Home City",
-            destination=itinerary.destination,
-            departure_date=itinerary.preference.start_date.isoformat(),
-            return_date=itinerary.preference.end_date.isoformat(),
-            passengers=itinerary.preference.group_size
-        )
-        return render_template('booking.html', 
-                             booking_type='flights', 
-                             items=flights, 
-                             itinerary=itinerary)
-
-    elif booking_type == 'hotels':
-        # Mock hotel search
-        hotels = travel_service.search_hotels(
-            destination=itinerary.destination,
-            check_in=itinerary.preference.start_date.isoformat(),
-            check_out=itinerary.preference.end_date.isoformat(),
-            guests=itinerary.preference.group_size
-        )
-        return render_template('booking.html', 
-                             booking_type='hotels', 
-                             items=hotels, 
-                             itinerary=itinerary)
-
-    elif booking_type == 'activities':
-        # Get activities
-        activities = travel_service.get_activities(itinerary.destination, itinerary.preference.interests)
-        return render_template('booking.html', 
-                             booking_type='activities', 
-                             items=activities, 
-                             itinerary=itinerary)
-
-    else:
-        flash('Invalid booking type', 'error')
-        return redirect(url_for('itinerary'))
-
-@app.route('/confirm_booking', methods=['POST'])
-def confirm_booking():
-    """Confirm a booking."""
-    if 'itinerary_id' not in session:
-        flash('No itinerary found. Please start over.', 'error')
-        return redirect(url_for('preferences'))
-
-    try:
-        booking_type = request.form['booking_type']
-        item_id = request.form['item_id']
-        item_details = request.form.get('item_details', '{}')
-
-        # Parse item details
-        try:
-            details = json.loads(item_details)
-        except json.JSONDecodeError:
-            details = {}
-
-        # Create booking using travel service
-        booking_info = travel_service.create_booking(booking_type, item_id, details)
-
-        # Save booking to database
-        booking = Booking(
-            session_id=session['session_id'],
-            itinerary_id=session['itinerary_id'],
-            booking_type=booking_type,
-            provider=details.get('provider', 'Unknown'),
-            cost=booking_info.get('total_amount', 0.0),
-            booking_reference=booking_info.get('booking_reference', 'N/A'),
-            status='confirmed'
-        )
-        booking.details_dict = booking_info
-
-        db.session.add(booking)
-        db.session.commit()
-
-        flash(f'Booking confirmed! Reference: {booking_info["booking_reference"]}', 'success')
-        return redirect(url_for('itinerary'))
-
-    except Exception as e:
-        logging.error(f"Error confirming booking: {e}")
-        flash('An error occurred while confirming your booking. Please try again.', 'error')
-        return redirect(url_for('itinerary'))
-
-@app.route('/my_bookings')
-def my_bookings():
-    """Display user's bookings."""
-    if 'session_id' not in session:
-        flash('No bookings found', 'error')
-        return redirect(url_for('index'))
-
-    bookings = Booking.query.filter_by(session_id=session['session_id']).all()
-    return render_template('my_bookings.html', bookings=bookings)
-
-@app.route('/reset')
-def reset():
-    """Reset session and start over."""
-    session.clear()
-    flash('Session reset. You can start planning a new trip!', 'info')
-    return redirect(url_for('index'))
+        logging.error(f"Error answering question: {e}")
+        return jsonify({'error': 'Failed to answer question. Please try again.'}), 500
 
 @app.errorhandler(404)
 def not_found(error):
@@ -387,5 +81,4 @@ def not_found(error):
 
 @app.errorhandler(500)
 def internal_error(error):
-    db.session.rollback()
     return render_template('500.html'), 500
