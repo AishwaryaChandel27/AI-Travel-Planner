@@ -28,22 +28,39 @@ def get_destination_recommendations(preferences: dict) -> list[TravelRecommendat
     """Get AI-powered destination recommendations based on user preferences."""
     try:
         interests_str = ", ".join(preferences.get('interests', []))
+        country_info = preferences.get('country_info', {})
+        popular_destinations = preferences.get('popular_destinations', [])
+        currency = country_info.get('currency', 'USD')
+        
+        destinations_str = ", ".join(popular_destinations) if popular_destinations else "major cities and attractions"
         
         prompt = f"""
-        As a travel expert, recommend 3 destinations based on these preferences:
-        - Budget: ${preferences.get('budget', 'Not specified')}
+        As a travel expert, recommend 3 specific destinations in {preferences.get('destination_country', 'the selected country')} based on these preferences:
+        
+        USER PREFERENCES:
+        - Country: {preferences.get('destination_country')}
+        - Budget Type: {preferences.get('budget_type', 'mid_range')}
+        - Daily Budget: {preferences.get('budget', 100)} {currency}
         - Interests: {interests_str}
         - Group size: {preferences.get('group_size', 1)} people
         - Travel dates: {preferences.get('start_date', 'Flexible')} to {preferences.get('end_date', 'Flexible')}
+        - Accommodation: {preferences.get('accommodation_type', 'hotel')}
+        - Transport: {preferences.get('transport_preference', 'public transport')}
+        
+        COUNTRY INFORMATION:
+        - Currency: {currency}
+        - Popular destinations: {destinations_str}
+        - Best time to visit: {country_info.get('best_time', 'Year-round')}
+        - Cultural notes: {country_info.get('cultural_notes', 'No specific notes')}
         
         For each destination, provide:
-        - Destination name
+        - Destination name (choose from popular destinations or suggest similar)
         - 3-4 reasons why it's perfect for these preferences
-        - Best time to visit
-        - Estimated budget breakdown (accommodation, food, activities, transport)
-        - Top 5 highlights/attractions
+        - Best time to visit (considering local seasons)
+        - Estimated budget breakdown in {currency} (accommodation, food, activities, transport)
+        - Top 5 highlights/attractions specific to this destination
         
-        Respond with JSON array of recommendations.
+        Focus on destinations that match the budget type and interests. Be specific about costs in {currency}.
         """
 
         response = client.models.generate_content(
@@ -70,23 +87,36 @@ def generate_itinerary(preferences: dict, destination: str) -> ItineraryPlan:
     try:
         interests_str = ", ".join(preferences.get('interests', []))
         duration = (preferences.get('end_date') - preferences.get('start_date')).days if preferences.get('end_date') and preferences.get('start_date') else 7
+        country_info = preferences.get('country_info', {})
+        currency = country_info.get('currency', 'USD')
         
         prompt = f"""
-        Create a detailed {duration}-day itinerary for {destination} based on these preferences:
-        - Budget: ${preferences.get('budget', 2000)}
+        Create a detailed {duration}-day itinerary for {destination} in {preferences.get('destination_country')} based on these preferences:
+        
+        USER PREFERENCES:
+        - Country: {preferences.get('destination_country')}
+        - Budget Type: {preferences.get('budget_type', 'mid_range')}
+        - Daily Budget: {preferences.get('budget', 100)} {currency}
         - Interests: {interests_str}
         - Group size: {preferences.get('group_size', 1)} people
-        - Accommodation preference: {preferences.get('accommodation_type', 'Hotel')}
-        - Transport preference: {preferences.get('transport_preference', 'Public transport')}
+        - Accommodation: {preferences.get('accommodation_type', 'hotel')}
+        - Transport: {preferences.get('transport_preference', 'public transport')}
+        
+        COUNTRY CONTEXT:
+        - Currency: {currency}
+        - Best time to visit: {country_info.get('best_time', 'Year-round')}
+        - Cultural notes: {country_info.get('cultural_notes', 'No specific notes')}
+        - Language: {country_info.get('language', 'Local language')}
         
         Include:
-        - Daily activities with timings and descriptions
-        - Budget breakdown (accommodation, food, activities, transport, miscellaneous)
-        - 5 essential travel tips
-        - Top 5 recommended restaurants with cuisine types
-        - 3 accommodation suggestions with price ranges
+        - Daily activities with timings and descriptions (consider local customs and opening hours)
+        - Budget breakdown in {currency} (accommodation, food, activities, transport, miscellaneous)
+        - 5 essential travel tips specific to {destination} and {preferences.get('destination_country')}
+        - Top 5 recommended restaurants with local cuisine types and price ranges in {currency}
+        - 3 accommodation suggestions with price ranges in {currency} matching the {preferences.get('budget_type')} budget type
         
-        Make it practical and realistic for the budget and preferences.
+        Make it practical, realistic, and culturally appropriate for {preferences.get('destination_country')}.
+        Consider local customs, tipping practices, and cultural norms.
         """
 
         response = client.models.generate_content(
@@ -120,22 +150,35 @@ def generate_itinerary(preferences: dict, destination: str) -> ItineraryPlan:
 def get_travel_tips(destination: str, preferences: dict) -> list[str]:
     """Get AI-powered travel tips for the destination."""
     try:
+        country_info = preferences.get('country_info', {})
+        currency = country_info.get('currency', 'USD')
+        
         prompt = f"""
-        Provide 8 essential travel tips for visiting {destination} considering:
-        - Budget: ${preferences.get('budget', 2000)}
+        Provide 8 essential travel tips for visiting {destination} in {preferences.get('destination_country')} considering:
+        
+        USER CONTEXT:
+        - Budget Type: {preferences.get('budget_type', 'mid_range')}
+        - Daily Budget: {preferences.get('budget', 100)} {currency}
         - Group size: {preferences.get('group_size', 1)} people
         - Interests: {', '.join(preferences.get('interests', []))}
         
-        Focus on practical advice about:
-        - Local customs and etiquette
-        - Money-saving tips
-        - Safety considerations
-        - Best ways to get around
-        - Food and dining recommendations
-        - Cultural insights
-        - Packing suggestions
-        - Language tips
+        COUNTRY CONTEXT:
+        - Currency: {currency}
+        - Language: {country_info.get('language', 'Local language')}
+        - Cultural notes: {country_info.get('cultural_notes', 'No specific notes')}
+        - Visa requirements: {country_info.get('visa_info', 'Check requirements')}
         
+        Focus on practical advice about:
+        - Local customs and etiquette specific to {preferences.get('destination_country')}
+        - Money-saving tips and currency exchange
+        - Safety considerations and local laws
+        - Best ways to get around {destination}
+        - Food and dining recommendations with local specialties
+        - Cultural insights and social norms
+        - Packing suggestions for local climate/culture
+        - Language tips and useful phrases
+        
+        Make tips specific to {destination} and {preferences.get('destination_country')}.
         Return as a JSON array of strings.
         """
 

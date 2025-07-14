@@ -23,11 +23,46 @@
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label for="budget" class="form-label">Budget (USD)</label>
+                                <label for="destination_country" class="form-label">Destination Country</label>
+                                <select class="form-select" id="destination_country" name="destination_country" required>
+                                    <option value="">Select a country</option>
+                                    <option value="United States">United States</option>
+                                    <option value="Canada">Canada</option>
+                                    <option value="United Kingdom">United Kingdom</option>
+                                    <option value="France">France</option>
+                                    <option value="Germany">Germany</option>
+                                    <option value="Italy">Italy</option>
+                                    <option value="Spain">Spain</option>
+                                    <option value="Japan">Japan</option>
+                                    <option value="Thailand">Thailand</option>
+                                    <option value="India">India</option>
+                                    <option value="China">China</option>
+                                    <option value="Australia">Australia</option>
+                                    <option value="Brazil">Brazil</option>
+                                    <option value="Argentina">Argentina</option>
+                                    <option value="South Africa">South Africa</option>
+                                    <option value="United Arab Emirates">United Arab Emirates</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="budget_type" class="form-label">Budget Type</label>
+                                <select class="form-select" id="budget_type" name="budget_type" required>
+                                    <option value="">Select budget type</option>
+                                    <option value="budget">Budget Traveler</option>
+                                    <option value="mid_range" selected>Mid-Range</option>
+                                    <option value="luxury">Luxury</option>
+                                    <option value="ultra_luxury">Ultra Luxury</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="budget" class="form-label">Daily Budget</label>
                                 <div class="input-group">
-                                    <span class="input-group-text">$</span>
+                                    <span class="input-group-text" id="currency-symbol">$</span>
                                     <input type="number" class="form-control" id="budget" name="budget" 
-                                           min="100" max="50000" step="50" required value="2000">
+                                           min="20" max="2000" step="10" required value="150">
+                                </div>
+                                <div class="form-text" id="budget-description">
+                                    Mid-range traveler - 3-star hotels, casual dining, mix of transport
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -38,6 +73,14 @@
                                     <option value="3">Small Group (3-4 people)</option>
                                     <option value="5">Large Group (5+ people)</option>
                                 </select>
+                            </div>
+                            <div class="col-12">
+                                <div class="country-info" id="country-info" style="display: none;">
+                                    <div class="alert alert-info">
+                                        <h6><i class="fas fa-info-circle me-2"></i>Country Information</h6>
+                                        <div id="country-details"></div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="col-md-6">
                                 <label for="start_date" class="form-label">Start Date</label>
@@ -161,6 +204,69 @@
 </div>
 
 <script>
+// Country and budget data
+const countryData = {
+    'United States': {currency: 'USD', symbol: '$', budgets: {budget: {min: 80, max: 150}, mid_range: {min: 150, max: 300}, luxury: {min: 300, max: 800}, ultra_luxury: {min: 800, max: 2000}}, bestTime: 'Spring (March-May) and Fall (September-November)', visa: 'ESTA required for most visitors'},
+    'Canada': {currency: 'CAD', symbol: 'C$', budgets: {budget: {min: 60, max: 120}, mid_range: {min: 120, max: 250}, luxury: {min: 250, max: 600}, ultra_luxury: {min: 600, max: 1500}}, bestTime: 'Summer (June-August) for most regions', visa: 'eTA required for most visitors'},
+    'United Kingdom': {currency: 'GBP', symbol: '£', budgets: {budget: {min: 50, max: 90}, mid_range: {min: 90, max: 200}, luxury: {min: 200, max: 500}, ultra_luxury: {min: 500, max: 1200}}, bestTime: 'Late spring to early autumn (May-September)', visa: 'Tourist visa required for most non-EU visitors'},
+    'France': {currency: 'EUR', symbol: '€', budgets: {budget: {min: 60, max: 100}, mid_range: {min: 100, max: 220}, luxury: {min: 220, max: 550}, ultra_luxury: {min: 550, max: 1500}}, bestTime: 'Late spring to early autumn (May-September)', visa: 'Schengen visa required for most non-EU visitors'},
+    'Germany': {currency: 'EUR', symbol: '€', budgets: {budget: {min: 50, max: 80}, mid_range: {min: 80, max: 180}, luxury: {min: 180, max: 400}, ultra_luxury: {min: 400, max: 1000}}, bestTime: 'Late spring to early autumn (May-September)', visa: 'Schengen visa required for most non-EU visitors'},
+    'Italy': {currency: 'EUR', symbol: '€', budgets: {budget: {min: 55, max: 95}, mid_range: {min: 95, max: 200}, luxury: {min: 200, max: 500}, ultra_luxury: {min: 500, max: 1300}}, bestTime: 'Late spring to early autumn (May-September)', visa: 'Schengen visa required for most non-EU visitors'},
+    'Spain': {currency: 'EUR', symbol: '€', budgets: {budget: {min: 45, max: 80}, mid_range: {min: 80, max: 160}, luxury: {min: 160, max: 400}, ultra_luxury: {min: 400, max: 1000}}, bestTime: 'Spring (March-May) and Fall (September-November)', visa: 'Schengen visa required for most non-EU visitors'},
+    'Japan': {currency: 'JPY', symbol: '¥', budgets: {budget: {min: 60, max: 100}, mid_range: {min: 100, max: 250}, luxury: {min: 250, max: 600}, ultra_luxury: {min: 600, max: 1500}}, bestTime: 'Spring (March-May) and Fall (September-November)', visa: 'Visa-free for many countries (90 days)'},
+    'Thailand': {currency: 'THB', symbol: '฿', budgets: {budget: {min: 25, max: 50}, mid_range: {min: 50, max: 120}, luxury: {min: 120, max: 300}, ultra_luxury: {min: 300, max: 800}}, bestTime: 'Cool season (November-February)', visa: 'Visa-free for many countries (30 days)'},
+    'India': {currency: 'INR', symbol: '₹', budgets: {budget: {min: 20, max: 40}, mid_range: {min: 40, max: 100}, luxury: {min: 100, max: 300}, ultra_luxury: {min: 300, max: 800}}, bestTime: 'Winter (October-March)', visa: 'Tourist visa required for most visitors'},
+    'China': {currency: 'CNY', symbol: '¥', budgets: {budget: {min: 30, max: 60}, mid_range: {min: 60, max: 150}, luxury: {min: 150, max: 400}, ultra_luxury: {min: 400, max: 1000}}, bestTime: 'Spring (April-June) and Fall (September-November)', visa: 'Tourist visa required for most visitors'},
+    'Australia': {currency: 'AUD', symbol: 'A$', budgets: {budget: {min: 70, max: 120}, mid_range: {min: 120, max: 250}, luxury: {min: 250, max: 600}, ultra_luxury: {min: 600, max: 1500}}, bestTime: 'Spring (September-November) and Fall (March-May)', visa: 'ETA required for most visitors'},
+    'Brazil': {currency: 'BRL', symbol: 'R$', budgets: {budget: {min: 30, max: 60}, mid_range: {min: 60, max: 140}, luxury: {min: 140, max: 350}, ultra_luxury: {min: 350, max: 900}}, bestTime: 'Fall and Winter (April-September)', visa: 'Visa required for many countries'},
+    'Argentina': {currency: 'ARS', symbol: '$', budgets: {budget: {min: 25, max: 50}, mid_range: {min: 50, max: 120}, luxury: {min: 120, max: 300}, ultra_luxury: {min: 300, max: 800}}, bestTime: 'Fall and Spring (March-May, September-November)', visa: 'Visa-free for many countries'},
+    'South Africa': {currency: 'ZAR', symbol: 'R', budgets: {budget: {min: 25, max: 50}, mid_range: {min: 50, max: 120}, luxury: {min: 120, max: 300}, ultra_luxury: {min: 300, max: 800}}, bestTime: 'Fall and Spring (March-May, September-November)', visa: 'Visa-free for many countries'},
+    'United Arab Emirates': {currency: 'AED', symbol: 'د.إ', budgets: {budget: {min: 60, max: 100}, mid_range: {min: 100, max: 250}, luxury: {min: 250, max: 600}, ultra_luxury: {min: 600, max: 2000}}, bestTime: 'Winter (October-April)', visa: 'Visa on arrival for many countries'}
+};
+
+// Update budget based on country and budget type
+function updateBudget() {
+    const country = document.getElementById('destination_country').value;
+    const budgetType = document.getElementById('budget_type').value;
+    
+    if (country && budgetType && countryData[country]) {
+        const data = countryData[country];
+        const budgetRange = data.budgets[budgetType];
+        
+        // Update currency symbol
+        document.getElementById('currency-symbol').textContent = data.symbol;
+        
+        // Update budget input
+        const budgetInput = document.getElementById('budget');
+        budgetInput.min = budgetRange.min;
+        budgetInput.max = budgetRange.max;
+        budgetInput.value = Math.round((budgetRange.min + budgetRange.max) / 2);
+        
+        // Update budget description
+        const descriptions = {
+            budget: 'Budget traveler - hostels, local food, public transport',
+            mid_range: 'Mid-range - hotels, restaurants, mix of transport',
+            luxury: 'Luxury - boutique hotels, fine dining, private tours',
+            ultra_luxury: 'Ultra luxury - exclusive hotels, premium experiences'
+        };
+        document.getElementById('budget-description').textContent = descriptions[budgetType];
+        
+        // Show country info
+        document.getElementById('country-info').style.display = 'block';
+        document.getElementById('country-details').innerHTML = `
+            <strong>Currency:</strong> ${data.currency} (${data.symbol}) <br>
+            <strong>Best Time to Visit:</strong> ${data.bestTime} <br>
+            <strong>Visa Requirements:</strong> ${data.visa}
+        `;
+    } else {
+        document.getElementById('country-info').style.display = 'none';
+    }
+}
+
+// Event listeners
+document.getElementById('destination_country').addEventListener('change', updateBudget);
+document.getElementById('budget_type').addEventListener('change', updateBudget);
+
 // Set minimum date to today
 document.getElementById('start_date').min = new Date().toISOString().split('T')[0];
 document.getElementById('end_date').min = new Date().toISOString().split('T')[0];

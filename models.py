@@ -5,8 +5,9 @@ from sqlalchemy import JSON
 class TravelPreference(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     session_id = db.Column(db.String(255), nullable=False)
-    destination = db.Column(db.String(255))
-    budget = db.Column(db.Float)
+    destination_country = db.Column(db.String(255))
+    budget_type = db.Column(db.String(50))  # budget, mid_range, luxury, ultra_luxury
+    budget = db.Column(db.Float)  # Daily budget
     start_date = db.Column(db.Date)
     end_date = db.Column(db.Date)
     group_size = db.Column(db.Integer)

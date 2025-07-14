@@ -7,6 +7,7 @@ from app import app, db
 from models import TravelPreference, Itinerary, Booking
 from gemini import get_destination_recommendations, generate_itinerary, get_travel_tips
 from travel_service import TravelService
+from country_data import get_country_info, get_popular_destinations, get_budget_ranges
 
 travel_service = TravelService()
 
@@ -41,7 +42,8 @@ def preferences():
             # Create travel preference record
             preference = TravelPreference(
                 session_id=session['session_id'],
-                destination=request.form.get('destination'),
+                destination_country=request.form.get('destination_country'),
+                budget_type=request.form.get('budget_type'),
                 budget=float(request.form['budget']),
                 start_date=start_date,
                 end_date=end_date,
@@ -55,16 +57,26 @@ def preferences():
             db.session.commit()
             
             session['preference_id'] = preference.id
+            session['destination_country'] = preference.destination_country
+            session['budget_type'] = preference.budget_type
+            
+            # Get country info and popular destinations
+            country_info = get_country_info(preference.destination_country)
+            popular_destinations = get_popular_destinations(preference.destination_country)
             
             # Get AI recommendations
             preferences_dict = {
+                'destination_country': preference.destination_country,
+                'budget_type': preference.budget_type,
                 'budget': preference.budget,
                 'start_date': preference.start_date,
                 'end_date': preference.end_date,
                 'group_size': preference.group_size,
                 'interests': preference.interests,
                 'accommodation_type': preference.accommodation_type,
-                'transport_preference': preference.transport_preference
+                'transport_preference': preference.transport_preference,
+                'country_info': country_info,
+                'popular_destinations': popular_destinations
             }
             
             recommendations = get_destination_recommendations(preferences_dict)
@@ -114,14 +126,18 @@ def select_destination(destination_index):
             return redirect(url_for('preferences'))
         
         # Generate detailed itinerary
+        country_info = get_country_info(preference.destination_country)
         preferences_dict = {
+            'destination_country': preference.destination_country,
+            'budget_type': preference.budget_type,
             'budget': preference.budget,
             'start_date': preference.start_date,
             'end_date': preference.end_date,
             'group_size': preference.group_size,
             'interests': preference.interests,
             'accommodation_type': preference.accommodation_type,
-            'transport_preference': preference.transport_preference
+            'transport_preference': preference.transport_preference,
+            'country_info': country_info
         }
         
         itinerary_plan = generate_itinerary(preferences_dict, selected_destination['destination'])
