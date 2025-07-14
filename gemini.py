@@ -1,4 +1,3 @@
-
 import os
 import logging
 from typing import Dict, List, Any, Optional
@@ -25,6 +24,115 @@ if GEMINI_AVAILABLE:
     else:
         GEMINI_AVAILABLE = False
         logger.warning("GEMINI_API_KEY not found. Using fallback responses.")
+
+def get_travel_response(prompt):
+    """Get AI travel response from Gemini or fallback."""
+
+    if GEMINI_AVAILABLE:
+        try:
+            response = model.generate_content(prompt)
+            return response.text
+        except Exception as e:
+            logger.error(f"Gemini API error: {e}")
+            # Fall back to demo response
+
+    # Fallback response when AI is not available
+    return generate_fallback_response(prompt)
+
+def generate_fallback_response(prompt):
+    """Generate fallback travel response when AI is unavailable."""
+
+    if "destination" in prompt.lower():
+        return """
+        🌍 **Travel Plan Generated!**
+
+        Based on your request, here's a sample travel plan:
+
+        **📍 Destination Highlights:**
+        • Must-see attractions and landmarks
+        • Local cultural experiences
+        • Hidden gems recommended by locals
+
+        **🗓️ Sample Itinerary:**
+        • Day 1: Arrival and city orientation
+        • Day 2: Historical sites and museums
+        • Day 3: Local markets and cuisine tour
+        • Day 4: Nature and outdoor activities
+        • Day 5: Departure and last-minute shopping
+
+        **💰 Budget Considerations:**
+        • Accommodation: $80-120/night
+        • Meals: $30-50/day
+        • Activities: $20-40/day
+        • Transportation: $15-25/day
+
+        **🍽️ Local Cuisine:**
+        • Traditional dishes to try
+        • Best local restaurants
+        • Street food recommendations
+
+        **✈️ Travel Tips:**
+        • Best time to visit
+        • Local customs and etiquette
+        • Transportation options
+        • Safety considerations
+
+        *Note: This is a sample response. For personalized AI-powered recommendations, please add your GEMINI_API_KEY in the Secrets tab.*
+        """
+
+    elif "question" in prompt.lower():
+        return """
+        🤔 **Travel Question Answered!**
+
+        Thank you for your travel question! Here's some helpful information:
+
+        **General Travel Tips:**
+        • Research your destination before traveling
+        • Check visa requirements and travel documents
+        • Book accommodations and flights in advance
+        • Pack appropriate clothing for the climate
+        • Keep important documents in safe places
+
+        **Safety Recommendations:**
+        • Register with your embassy if traveling abroad
+        • Keep emergency contacts handy
+        • Stay aware of your surroundings
+        • Use reputable transportation services
+
+        **Budget Planning:**
+        • Research local costs and currency
+        • Set aside emergency funds
+        • Consider travel insurance
+        • Track your expenses while traveling
+
+        *Note: This is a sample response. For personalized AI-powered answers, please add your GEMINI_API_KEY in the Secrets tab.*
+        """
+
+    else:
+        return """
+        🌟 **AI Travel Assistant**
+
+        Welcome to your AI Travel Assistant! I can help you with:
+
+        **📋 Travel Planning:**
+        • Destination recommendations
+        • Itinerary creation
+        • Budget planning
+        • Activity suggestions
+
+        **❓ Travel Questions:**
+        • Best times to visit destinations
+        • Local customs and culture
+        • Transportation options
+        • Safety tips and advice
+
+        **🎯 How to Use:**
+        1. Fill out the travel form with your preferences
+        2. Ask specific questions about destinations
+        3. Get personalized recommendations
+
+        *Note: For full AI capabilities, please add your GEMINI_API_KEY in the Secrets tab.*
+        """
 
 def get_destination_recommendations(preferences: Dict[str, Any]) -> List[Dict[str, Any]]:
     """Get AI-powered destination recommendations based on user preferences."""

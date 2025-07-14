@@ -1,7 +1,7 @@
-from flask import render_template, request, jsonify, flash, session
+
+from flask import render_template, request, jsonify
 from app import app
 from gemini import get_travel_response
-import uuid
 import logging
 
 @app.route('/')

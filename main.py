@@ -5,7 +5,7 @@ AI Travel Assistant - Simple Travel Planning App
 """
 
 from app import app
-from routes import *
+import routes
 
 if __name__ == '__main__':
     print("🌍 Starting AI Travel Assistant...")
