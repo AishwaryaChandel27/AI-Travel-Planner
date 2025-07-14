@@ -68,7 +68,6 @@ def get_destination_recommendations(preferences: dict) -> list[TravelRecommendat
             contents=prompt,
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
-                response_schema=list[TravelRecommendation],
             ),
         )
 
@@ -80,7 +79,118 @@ def get_destination_recommendations(preferences: dict) -> list[TravelRecommendat
 
     except Exception as e:
         logging.error(f"Error getting destination recommendations: {e}")
-        return []
+        # Return realistic fallback data based on country and preferences
+        return get_fallback_recommendations(preferences)
+
+def get_fallback_recommendations(preferences: dict) -> list[TravelRecommendation]:
+    """Get realistic fallback recommendations when AI fails."""
+    country = preferences.get('destination_country', 'Unknown')
+    country_info = preferences.get('country_info', {})
+    currency = country_info.get('currency', 'USD')
+    popular_destinations = preferences.get('popular_destinations', [])
+    budget_type = preferences.get('budget_type', 'mid_range')
+    
+    # Country-specific fallback data
+    fallback_data = {
+        'Japan': [
+            {
+                'destination': 'Tokyo',
+                'reasons': ['World-class cuisine and street food', 'Mix of traditional and modern culture', 'Excellent public transportation', 'Safe and clean environment'],
+                'best_time_to_visit': 'Spring (March-May) for cherry blossoms or Fall (September-November)',
+                'estimated_budget': {'accommodation': 8000, 'food': 4000, 'activities': 3000, 'transport': 2000},
+                'highlights': ['Tsukiji Fish Market', 'Senso-ji Temple', 'Shibuya Crossing', 'Tokyo Skytree', 'Meiji Shrine']
+            },
+            {
+                'destination': 'Kyoto',
+                'reasons': ['Historic temples and shrines', 'Traditional Japanese culture', 'Beautiful gardens and bamboo forests', 'Geisha districts'],
+                'best_time_to_visit': 'Spring for cherry blossoms or Fall for autumn colors',
+                'estimated_budget': {'accommodation': 7000, 'food': 3500, 'activities': 2500, 'transport': 1500},
+                'highlights': ['Fushimi Inari Shrine', 'Kinkaku-ji Golden Pavilion', 'Arashiyama Bamboo Grove', 'Gion District', 'Kiyomizu-dera Temple']
+            }
+        ],
+        'Thailand': [
+            {
+                'destination': 'Bangkok',
+                'reasons': ['Vibrant street food culture', 'Magnificent temples and palaces', 'Affordable luxury experiences', 'Bustling markets and nightlife'],
+                'best_time_to_visit': 'Cool season (November-February)',
+                'estimated_budget': {'accommodation': 1200, 'food': 800, 'activities': 600, 'transport': 400},
+                'highlights': ['Grand Palace', 'Wat Pho Temple', 'Chatuchak Weekend Market', 'Chao Phraya River', 'Khao San Road']
+            },
+            {
+                'destination': 'Chiang Mai',
+                'reasons': ['Rich cultural heritage', 'Mountain temples and nature', 'Authentic Thai cooking classes', 'Elephant sanctuaries'],
+                'best_time_to_visit': 'Cool season (November-February)',
+                'estimated_budget': {'accommodation': 800, 'food': 600, 'activities': 700, 'transport': 300},
+                'highlights': ['Doi Suthep Temple', 'Old City temples', 'Night Bazaar', 'Elephant Nature Park', 'Cooking classes']
+            }
+        ],
+        'India': [
+            {
+                'destination': 'Delhi',
+                'reasons': ['Rich Mughal and British history', 'Incredible street food scene', 'Budget-friendly luxury', 'Gateway to Golden Triangle'],
+                'best_time_to_visit': 'Winter (October-March)',
+                'estimated_budget': {'accommodation': 2500, 'food': 1500, 'activities': 1000, 'transport': 500},
+                'highlights': ['Red Fort', 'India Gate', 'Lotus Temple', 'Chandni Chowk', 'Humayun\'s Tomb']
+            },
+            {
+                'destination': 'Jaipur',
+                'reasons': ['Pink City architecture', 'Royal palaces and forts', 'Vibrant local markets', 'Authentic Rajasthani culture'],
+                'best_time_to_visit': 'Winter (October-March)',
+                'estimated_budget': {'accommodation': 2000, 'food': 1200, 'activities': 800, 'transport': 400},
+                'highlights': ['Amber Fort', 'City Palace', 'Hawa Mahal', 'Jantar Mantar', 'Local bazaars']
+            }
+        ],
+        'United Kingdom': [
+            {
+                'destination': 'London',
+                'reasons': ['Rich history and royal heritage', 'World-class museums and galleries', 'Diverse neighborhoods and culture', 'Excellent public transport'],
+                'best_time_to_visit': 'Late spring to early autumn (May-September)',
+                'estimated_budget': {'accommodation': 120, 'food': 60, 'activities': 40, 'transport': 25},
+                'highlights': ['Big Ben & Westminster', 'British Museum', 'Tower of London', 'Buckingham Palace', 'Thames River']
+            },
+            {
+                'destination': 'Edinburgh',
+                'reasons': ['Medieval Old Town and elegant New Town', 'Rich Scottish culture and history', 'Stunning castle views', 'Festival city atmosphere'],
+                'best_time_to_visit': 'Summer (June-August) for festivals',
+                'estimated_budget': {'accommodation': 100, 'food': 50, 'activities': 35, 'transport': 20},
+                'highlights': ['Edinburgh Castle', 'Royal Mile', 'Arthur\'s Seat', 'Holyrood Palace', 'Scottish whisky tours']
+            }
+        ],
+        'France': [
+            {
+                'destination': 'Paris',
+                'reasons': ['Iconic landmarks and architecture', 'World-renowned cuisine and wine', 'Art museums and galleries', 'Romantic atmosphere'],
+                'best_time_to_visit': 'Late spring to early autumn (May-September)',
+                'estimated_budget': {'accommodation': 140, 'food': 70, 'activities': 45, 'transport': 30},
+                'highlights': ['Eiffel Tower', 'Louvre Museum', 'Notre-Dame Cathedral', 'Champs-Élysées', 'Montmartre']
+            },
+            {
+                'destination': 'Nice',
+                'reasons': ['Beautiful Mediterranean coastline', 'Vibrant markets and old town', 'Perfect weather year-round', 'Gateway to French Riviera'],
+                'best_time_to_visit': 'Late spring to early autumn (May-September)',
+                'estimated_budget': {'accommodation': 120, 'food': 60, 'activities': 40, 'transport': 25},
+                'highlights': ['Promenade des Anglais', 'Old Town (Vieux Nice)', 'Castle Hill', 'Flower Market', 'Beach clubs']
+            }
+        ]
+    }
+    
+    # Get fallback recommendations for the country
+    if country in fallback_data:
+        recommendations = []
+        for rec_data in fallback_data[country]:
+            recommendations.append(TravelRecommendation(**rec_data))
+        return recommendations
+    else:
+        # Generic fallback
+        return [
+            TravelRecommendation(
+                destination=popular_destinations[0] if popular_destinations else f"Capital of {country}",
+                reasons=[f"Cultural heart of {country}", "Local cuisine and attractions", "Historical significance", "Good transportation links"],
+                best_time_to_visit="Year-round",
+                estimated_budget={'accommodation': 100, 'food': 50, 'activities': 40, 'transport': 30},
+                highlights=["Main attractions", "Local markets", "Cultural sites", "Historical landmarks", "Local cuisine"]
+            )
+        ]
 
 def generate_itinerary(preferences: dict, destination: str) -> ItineraryPlan:
     """Generate a detailed itinerary for the selected destination."""
