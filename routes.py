@@ -170,21 +170,37 @@ def select_destination(destination_index):
         travel_tips = get_travel_tips(selected_destination['destination'], preferences_dict)
         
         # Create itinerary record
-        import json
         itinerary = Itinerary(
             session_id=session['session_id'],
             preference_id=preference.id,
             destination=selected_destination['destination'],
             title=f"{selected_destination['destination']} Adventure",
-            description=f"Personalized itinerary for {selected_destination['destination']}",
-            activities=json.dumps(itinerary_plan.daily_activities if hasattr(itinerary_plan, 'daily_activities') else []),
-            budget_breakdown=json.dumps(itinerary_plan.budget_breakdown if hasattr(itinerary_plan, 'budget_breakdown') else {}),
-            recommendations=json.dumps({
-                'restaurants': itinerary_plan.recommended_restaurants if hasattr(itinerary_plan, 'recommended_restaurants') else [],
-                'accommodations': itinerary_plan.accommodation_suggestions if hasattr(itinerary_plan, 'accommodation_suggestions') else [],
-                'travel_tips': travel_tips
-            })
+            description=f"Personalized itinerary for {selected_destination['destination']}"
         )
+        
+        # Set activities
+        if hasattr(itinerary_plan, 'daily_activities'):
+            itinerary.activities_list = itinerary_plan.daily_activities
+        elif hasattr(itinerary_plan, 'activities'):
+            itinerary.activities_list = itinerary_plan.activities
+        else:
+            itinerary.activities_list = []
+        
+        # Set budget breakdown
+        if hasattr(itinerary_plan, 'budget_breakdown'):
+            itinerary.budget_breakdown_dict = itinerary_plan.budget_breakdown
+        elif hasattr(itinerary_plan, 'budget'):
+            itinerary.budget_breakdown_dict = itinerary_plan.budget
+        else:
+            itinerary.budget_breakdown_dict = {}
+        
+        # Set recommendations
+        recommendations = {
+            'restaurants': getattr(itinerary_plan, 'recommended_restaurants', []),
+            'accommodations': getattr(itinerary_plan, 'accommodation_suggestions', []),
+            'travel_tips': travel_tips if isinstance(travel_tips, list) else [travel_tips] if travel_tips else []
+        }
+        itinerary.recommendations_dict = recommendations
         
         db.session.add(itinerary)
         db.session.commit()
@@ -285,8 +301,10 @@ def confirm_booking():
         item_details = request.form.get('item_details', '{}')
         
         # Parse item details
-        import json
-        details = json.loads(item_details)
+        try:
+            details = json.loads(item_details)
+        except json.JSONDecodeError:
+            details = {}
         
         # Create booking using travel service
         booking_info = travel_service.create_booking(booking_type, item_id, details)
@@ -297,11 +315,11 @@ def confirm_booking():
             itinerary_id=session['itinerary_id'],
             booking_type=booking_type,
             provider=details.get('provider', 'Unknown'),
-            details=booking_info,
-            cost=booking_info['total_amount'],
-            booking_reference=booking_info['booking_reference'],
+            cost=booking_info.get('total_amount', 0.0),
+            booking_reference=booking_info.get('booking_reference', 'N/A'),
             status='confirmed'
         )
+        booking.details_dict = booking_info
         
         db.session.add(booking)
         db.session.commit()

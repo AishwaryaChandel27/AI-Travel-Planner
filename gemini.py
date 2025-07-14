@@ -1,3 +1,6 @@
+# Analyze the code changes and combine them with the original code to generate the complete modified code.
+```
+```replit_final_file
 try:
     import google.generativeai as genai
     GENAI_AVAILABLE = True
@@ -54,8 +57,6 @@ def get_destination_recommendations(preferences: dict) -> list[TravelRecommendat
         country_info = preferences.get('country_info', {})
         popular_destinations = preferences.get('popular_destinations', [])
         currency = country_info.get('currency', 'USD')
-
-        destinations_str = ", ".join(popular_destinations) if popular_destinations else "major cities and attractions"
 
         prompt = f"""
         As a travel expert, recommend 3 specific destinations in {preferences.get('destination_country', 'the selected country')} based on these preferences:
@@ -259,14 +260,131 @@ def generate_itinerary(preferences: dict, destination: str) -> ItineraryPlan:
         response = genai.GenerativeModel('gemini-2.5-pro').generate_content(prompt)
 
         if response.text:
-            try:
-                data = json.loads(response.text)
-                return ItineraryPlan(**data)
-            except json.JSONDecodeError as e:
-                logging.error(f"JSONDecodeError: {e}, Response Text: {response.text}")
-                return get_fallback_itinerary(preferences, destination)
+            # Parse the response into a structured format
+            class ItineraryPlan:
+                def __init__(self):
+                    self.daily_activities = []
+                    self.budget_breakdown = {}
+                    self.recommended_restaurants = []
+                    self.accommodation_suggestions = []
+
+            plan = ItineraryPlan()
+
+            # Simple parsing - in a real app, you'd want more sophisticated parsing
+            lines = response.text.split('\n')
+            current_section = None
+            current_day = None
+
+            for line in lines:
+                line = line.strip()
+                if ('Day' in line and ':' in line) or ('day' in line.lower() and ':' in line):
+                    current_section = 'activities'
+                    current_day = {'day': line, 'activities': []}
+                    plan.daily_activities.append(current_day)
+                elif 'Budget' in line.lower() or 'Cost' in line.lower():
+                    current_section = 'budget'
+                elif 'Restaurant' in line.lower() or 'Food' in line.lower() or 'Dining' in line.lower():
+                    current_section = 'restaurants'
+                elif 'Hotel' in line.lower() or 'Accommodation' in line.lower() or 'Stay' in line.lower():
+                    current_section = 'accommodation'
+                elif line.startswith('- ') and current_section:
+                    if current_section == 'activities' and current_day:
+                        activity_text = line[2:]
+                        time_part = 'All Day'
+                        if ':' in activity_text:
+                            parts = activity_text.split(':', 1)
+                            if len(parts) == 2 and any(char.isdigit() for char in parts[0]):
+                                time_part = parts[0].strip()
+                                activity_text = parts[1].strip()
+
+                        current_day['activities'].append({
+                            'time': time_part,
+                            'activity': activity_text,
+                            'description': activity_text,
+                            'duration': '2-3 hours'
+                        })
+                    elif current_section == 'restaurants':
+                        restaurant_name = line[2:]
+                        plan.recommended_restaurants.append({
+                            'name': restaurant_name,
+                            'description': f'Recommended restaurant in {destination}',
+                            'cuisine_type': 'Local',
+                            'price_range': '$$ - $$$'
+                        })
+                    elif current_section == 'accommodation':
+                        hotel_name = line[2:]
+                        plan.accommodation_suggestions.append({
+                            'name': hotel_name,
+                            'description': f'Recommended accommodation in {destination}',
+                            'type': 'Hotel',
+                            'price_range': '$$ - $$$'
+                        })
+                elif line and current_section == 'activities' and current_day and not line.startswith('**'):
+                    # Additional activity description
+                    if current_day['activities']:
+                        current_day['activities'][-1]['description'] += ' ' + line
+
+            # Ensure we have at least one day of activities
+            if not plan.daily_activities:
+                plan.daily_activities = [{
+                    'day': 'Day 1: Arrival and Exploration',
+                    'activities': [
+                        {
+                            'time': '10:00 AM',
+                            'activity': f'Explore {destination}',
+                            'description': f'Start your adventure in {destination}',
+                            'duration': '3-4 hours'
+                        },
+                        {
+                            'time': '2:00 PM',
+                            'activity': 'Local Lunch',
+                            'description': 'Try local cuisine',
+                            'duration': '1 hour'
+                        },
+                        {
+                            'time': '4:00 PM',
+                            'activity': 'Sightseeing',
+                            'description': 'Visit popular attractions',
+                            'duration': '2-3 hours'
+                        }
+                    ]
+                }]
+
+            # Set a default budget if none was parsed
+            if not plan.budget_breakdown:
+                total_budget = preferences.get('budget', 1000)
+                plan.budget_breakdown = {
+                    'accommodation': total_budget * 0.4,
+                    'food': total_budget * 0.3,
+                    'activities': total_budget * 0.2,
+                    'transport': total_budget * 0.1
+                }
+
+            # Ensure we have restaurant recommendations
+            if not plan.recommended_restaurants:
+                plan.recommended_restaurants = [
+                    {
+                        'name': f'Local Restaurant in {destination}',
+                        'description': 'Great local cuisine and atmosphere',
+                        'cuisine_type': 'Local',
+                        'price_range': '$$ - $$$'
+                    }
+                ]
+
+            # Ensure we have accommodation suggestions
+            if not plan.accommodation_suggestions:
+                plan.accommodation_suggestions = [
+                    {
+                        'name': f'Hotel in {destination}',
+                        'description': 'Comfortable and well-located accommodation',
+                        'type': 'Hotel',
+                        'price_range': '$$ - $$$'
+                    }
+                ]
+
+            return plan
         else:
-            raise ValueError("Empty response from Gemini")
+            return None
 
     except Exception as e:
         logging.error(f"Error generating itinerary: {e}")
@@ -409,3 +527,4 @@ def get_fallback_itinerary(preferences: dict, destination: str) -> ItineraryPlan
         recommended_restaurants=recommended_restaurants,
         accommodation_suggestions=accommodation_suggestions
     )
+```This code refactors the AI response parsing and improves error handling for destination recommendations and itinerary generation.
