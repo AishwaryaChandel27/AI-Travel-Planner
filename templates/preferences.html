@@ -167,3 +167,160 @@
     </div>
 </div>
 {% endblock %}
+{% extends "base.html" %}
+
+{% block title %}Travel Preferences - AI Travel Planner{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title mb-0">
+                    <i class="fas fa-map-marked-alt me-2"></i>Plan Your Perfect Trip
+                </h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="preferencesForm" class="needs-validation" novalidate>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="destination_country" class="form-label">Destination Country</label>
+                            <select class="form-select" id="destination_country" name="destination_country" required>
+                                <option value="">Choose a country...</option>
+                                <option value="japan">Japan</option>
+                                <option value="france">France</option>
+                                <option value="italy">Italy</option>
+                                <option value="spain">Spain</option>
+                                <option value="thailand">Thailand</option>
+                                <option value="united_states">United States</option>
+                                <option value="united_kingdom">United Kingdom</option>
+                                <option value="germany">Germany</option>
+                                <option value="australia">Australia</option>
+                                <option value="brazil">Brazil</option>
+                            </select>
+                            <div class="invalid-feedback">Please select a destination country.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="budget_type" class="form-label">Budget Type</label>
+                            <select class="form-select" id="budget_type" name="budget_type" required>
+                                <option value="">Choose budget type...</option>
+                                <option value="budget">Budget (Under $1000)</option>
+                                <option value="mid_range">Mid-range ($1000-$3000)</option>
+                                <option value="luxury">Luxury ($3000+)</option>
+                            </select>
+                            <div class="invalid-feedback">Please select a budget type.</div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="budget" class="form-label">Budget Amount ($)</label>
+                            <input type="number" class="form-control" id="budget" name="budget" min="100" max="50000" value="2000" required>
+                            <div class="invalid-feedback">Please enter a valid budget amount.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="group_size" class="form-label">Group Size</label>
+                            <select class="form-select" id="group_size" name="group_size" required>
+                                <option value="1">Solo (1 person)</option>
+                                <option value="2" selected>Couple (2 people)</option>
+                                <option value="3">Small group (3-4 people)</option>
+                                <option value="5">Large group (5+ people)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="start_date" class="form-label">Start Date</label>
+                            <input type="date" class="form-control" id="start_date" name="start_date" required>
+                            <div class="invalid-feedback">Please select a start date.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="end_date" class="form-label">End Date</label>
+                            <input type="date" class="form-control" id="end_date" name="end_date" required>
+                            <div class="invalid-feedback">Please select an end date.</div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="accommodation_type" class="form-label">Accommodation Type</label>
+                            <select class="form-select" id="accommodation_type" name="accommodation_type" required>
+                                <option value="hotel">Hotel</option>
+                                <option value="hostel">Hostel</option>
+                                <option value="airbnb">Airbnb</option>
+                                <option value="resort">Resort</option>
+                                <option value="guesthouse">Guesthouse</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="transport_preference" class="form-label">Transport Preference</label>
+                            <select class="form-select" id="transport_preference" name="transport_preference" required>
+                                <option value="public_transport">Public Transport</option>
+                                <option value="rental_car">Rental Car</option>
+                                <option value="taxi_uber">Taxi/Uber</option>
+                                <option value="walking">Walking</option>
+                                <option value="bicycle">Bicycle</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Interests (Select all that apply)</label>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="interests" value="culture" id="culture">
+                                    <label class="form-check-label" for="culture">Culture & History</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="interests" value="food" id="food">
+                                    <label class="form-check-label" for="food">Food & Dining</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="interests" value="adventure" id="adventure">
+                                    <label class="form-check-label" for="adventure">Adventure & Sports</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="interests" value="nature" id="nature">
+                                    <label class="form-check-label" for="nature">Nature & Wildlife</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="interests" value="nightlife" id="nightlife">
+                                    <label class="form-check-label" for="nightlife">Nightlife & Entertainment</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="interests" value="shopping" id="shopping">
+                                    <label class="form-check-label" for="shopping">Shopping</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="interests" value="relaxation" id="relaxation">
+                                    <label class="form-check-label" for="relaxation">Relaxation & Wellness</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="interests" value="photography" id="photography">
+                                    <label class="form-check-label" for="photography">Photography</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="interests" value="art" id="art">
+                                    <label class="form-check-label" for="art">Art & Museums</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-search me-2"></i>Find My Perfect Destinations
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
