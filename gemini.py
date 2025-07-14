@@ -1,502 +1,241 @@
 import os
 import logging
-from typing import Dict, List, Any, Optional
-import json
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# Try to import Google Generative AI
 try:
     import google.generativeai as genai
     GEMINI_AVAILABLE = True
 except ImportError:
     GEMINI_AVAILABLE = False
-    logger.warning("Google Generative AI not available. Using fallback responses.")
+    logging.warning("Google Generative AI not available. Install with: pip install google-generativeai")
 
-# Configure Gemini if available
-if GEMINI_AVAILABLE:
-    api_key = os.environ.get("GEMINI_API_KEY")
-    if api_key:
+def get_travel_response(user_input):
+    """Generate travel response using Gemini AI or fallback."""
+
+    # Get API key from environment
+    api_key = os.environ.get('GEMINI_API_KEY')
+
+    if not GEMINI_AVAILABLE:
+        return get_fallback_response(user_input)
+
+    if not api_key:
+        logging.warning("GEMINI_API_KEY not found. Using fallback responses.")
+        return get_fallback_response(user_input)
+
+    try:
+        # Configure Gemini
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel('gemini-pro')
-    else:
-        GEMINI_AVAILABLE = False
-        logger.warning("GEMINI_API_KEY not found. Using fallback responses.")
 
-def get_travel_response(prompt):
-    """Get AI travel response from Gemini or fallback."""
+        # Enhanced prompt for better travel responses
+        travel_prompt = f"""
+        You are an expert travel assistant. Provide detailed, helpful travel advice.
 
-    if GEMINI_AVAILABLE:
-        try:
-            response = model.generate_content(prompt)
+        User Request: {user_input}
+
+        Please provide a comprehensive response that includes:
+        - Specific recommendations
+        - Practical tips
+        - Budget considerations
+        - Best times to visit
+        - Local insights
+
+        Format your response in a clear, organized way with bullet points and sections where appropriate.
+        """
+
+        # Generate response
+        response = model.generate_content(travel_prompt)
+
+        if response.text:
             return response.text
-        except Exception as e:
-            logger.error(f"Gemini API error: {e}")
-            # Fall back to demo response
+        else:
+            return get_fallback_response(user_input)
 
-    # Fallback response when AI is not available
-    return generate_fallback_response(prompt)
+    except Exception as e:
+        logging.error(f"Gemini API error: {e}")
+        return get_fallback_response(user_input)
 
-def generate_fallback_response(prompt):
-    """Generate fallback travel response when AI is unavailable."""
+def get_fallback_response(user_input):
+    """Provide fallback responses when Gemini is not available."""
 
-    if "destination" in prompt.lower():
+    user_lower = user_input.lower()
+
+    # Destination-specific responses
+    if any(dest in user_lower for dest in ['paris', 'france']):
         return """
-        🌍 **Travel Plan Generated!**
+        🇫🇷 **Paris Travel Guide**
 
-        Based on your request, here's a sample travel plan:
+        **Best Time to Visit:** April-June, September-October
 
-        **📍 Destination Highlights:**
-        • Must-see attractions and landmarks
-        • Local cultural experiences
-        • Hidden gems recommended by locals
+        **Must-See Attractions:**
+        • Eiffel Tower - Visit at sunset for magical views
+        • Louvre Museum - Book skip-the-line tickets
+        • Notre-Dame Cathedral - Currently under restoration
+        • Champs-Élysées - Perfect for shopping and cafes
 
-        **🗓️ Sample Itinerary:**
-        • Day 1: Arrival and city orientation
-        • Day 2: Historical sites and museums
-        • Day 3: Local markets and cuisine tour
-        • Day 4: Nature and outdoor activities
-        • Day 5: Departure and last-minute shopping
+        **Budget Tips:**
+        • Museum passes save money and time
+        • Lunch at local bistros vs tourist areas
+        • Metro day passes for easy transportation
 
-        **💰 Budget Considerations:**
-        • Accommodation: $80-120/night
-        • Meals: $30-50/day
-        • Activities: $20-40/day
-        • Transportation: $15-25/day
+        **Local Cuisine:**
+        • Croissants at local boulangeries
+        • Seine riverside picnics
+        • Traditional French onion soup
 
-        **🍽️ Local Cuisine:**
-        • Traditional dishes to try
-        • Best local restaurants
-        • Street food recommendations
-
-        **✈️ Travel Tips:**
-        • Best time to visit
-        • Local customs and etiquette
-        • Transportation options
-        • Safety considerations
-
-        *Note: This is a sample response. For personalized AI-powered recommendations, please add your GEMINI_API_KEY in the Secrets tab.*
+        **Travel Tips:**
+        • Learn basic French phrases
+        • Carry cash for small purchases
+        • Book restaurants in advance
         """
 
-    elif "question" in prompt.lower():
+    elif any(dest in user_lower for dest in ['tokyo', 'japan']):
         return """
-        🤔 **Travel Question Answered!**
+        🇯🇵 **Tokyo Travel Guide**
 
-        Thank you for your travel question! Here's some helpful information:
+        **Best Time to Visit:** March-May (Cherry Blossoms), September-November
 
-        **General Travel Tips:**
-        • Research your destination before traveling
-        • Check visa requirements and travel documents
-        • Book accommodations and flights in advance
-        • Pack appropriate clothing for the climate
-        • Keep important documents in safe places
+        **Must-See Areas:**
+        • Shibuya Crossing - Iconic intersection experience
+        • Senso-ji Temple - Historic Buddhist temple
+        • Tsukiji Outer Market - Fresh sushi breakfast
+        • Harajuku - Youth culture and fashion
 
-        **Safety Recommendations:**
-        • Register with your embassy if traveling abroad
-        • Keep emergency contacts handy
-        • Stay aware of your surroundings
-        • Use reputable transportation services
+        **Budget Breakdown:**
+        • Accommodation: $50-150/night
+        • Meals: $30-60/day
+        • Transportation: $10-15/day (JR Pass)
 
-        **Budget Planning:**
-        • Research local costs and currency
-        • Set aside emergency funds
-        • Consider travel insurance
-        • Track your expenses while traveling
+        **Cultural Tips:**
+        • Bow when greeting
+        • Remove shoes indoors
+        • No tipping culture
+        • Respect quiet zones on trains
 
-        *Note: This is a sample response. For personalized AI-powered answers, please add your GEMINI_API_KEY in the Secrets tab.*
+        **Food Experiences:**
+        • Ramen shops in Golden Gai
+        • Conveyor belt sushi
+        • Traditional tea ceremony
         """
 
+    elif any(dest in user_lower for dest in ['london', 'uk', 'england']):
+        return """
+        🇬🇧 **London Travel Guide**
+
+        **Best Time to Visit:** May-September (warmer weather)
+
+        **Top Attractions:**
+        • Big Ben & Parliament - Iconic landmarks
+        • British Museum - Free admission
+        • Tower of London - Crown Jewels
+        • Camden Market - Alternative shopping
+
+        **Budget Guide:**
+        • Many museums are free
+        • Pub meals are affordable
+        • Oyster Card for transport savings
+
+        **Weather Tips:**
+        • Always carry an umbrella
+        • Layer clothing
+        • Waterproof jacket essential
+
+        **Cultural Experiences:**
+        • Traditional afternoon tea
+        • West End theater shows
+        • Sunday roast at historic pubs
+        """
+
+    # Budget-related responses
+    elif any(budget in user_lower for budget in ['budget', 'cheap', 'affordable']):
+        return """
+        💰 **Budget Travel Tips**
+
+        **Accommodation:**
+        • Hostels and guesthouses
+        • Airbnb for longer stays
+        • House-sitting opportunities
+
+        **Transportation:**
+        • Book flights in advance
+        • Use budget airlines
+        • Public transport vs taxis
+        • Walking tours (often free)
+
+        **Food Savings:**
+        • Local markets and street food
+        • Cook your own meals
+        • Lunch specials vs dinner prices
+
+        **Activities:**
+        • Free museums and galleries
+        • City walking tours
+        • Beach and nature activities
+        • Local festivals and events
+        """
+
+    # Duration-specific advice
+    elif any(duration in user_lower for duration in ['weekend', '2 days', 'short']):
+        return """
+        ⏰ **Weekend Travel Guide**
+
+        **Planning Tips:**
+        • Choose nearby destinations
+        • Focus on 2-3 main attractions
+        • Book accommodation early
+
+        **Packing Light:**
+        • Carry-on only
+        • Comfortable walking shoes
+        • Weather-appropriate clothing
+
+        **Time Management:**
+        • Arrive Friday evening
+        • Full days Saturday & Sunday
+        • Monday morning departure
+
+        **City Break Ideas:**
+        • Historic city centers
+        • Cultural districts
+        • Food and market tours
+        """
+
+    # General travel advice
     else:
         return """
-        🌟 **AI Travel Assistant**
+        🌍 **General Travel Assistance**
 
-        Welcome to your AI Travel Assistant! I can help you with:
+        **Planning Your Trip:**
+        • Research your destination thoroughly
+        • Check visa and passport requirements
+        • Book flights and accommodation in advance
+        • Create a flexible itinerary
 
-        **📋 Travel Planning:**
-        • Destination recommendations
-        • Itinerary creation
-        • Budget planning
-        • Activity suggestions
+        **Packing Essentials:**
+        • Travel documents and copies
+        • Comfortable walking shoes
+        • Weather-appropriate clothing
+        • Universal adapter and chargers
+        • Basic first aid kit
 
-        **❓ Travel Questions:**
-        • Best times to visit destinations
-        • Local customs and culture
-        • Transportation options
-        • Safety tips and advice
+        **Safety Tips:**
+        • Share itinerary with someone at home
+        • Keep emergency contacts handy
+        • Research local customs and laws
+        • Stay aware of your surroundings
 
-        **🎯 How to Use:**
-        1. Fill out the travel form with your preferences
-        2. Ask specific questions about destinations
-        3. Get personalized recommendations
+        **Money Matters:**
+        • Notify bank of travel plans
+        • Have multiple payment methods
+        • Research local tipping customs
+        • Keep some cash for emergencies
 
-        *Note: For full AI capabilities, please add your GEMINI_API_KEY in the Secrets tab.*
+        **Making the Most of Your Trip:**
+        • Try local cuisine
+        • Learn basic local phrases
+        • Be open to spontaneous experiences
+        • Take time to rest and enjoy
+
+        *For more specific advice, please tell me about your destination, budget, and travel preferences!*
         """
 
-def get_destination_recommendations(preferences: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """Get AI-powered destination recommendations based on user preferences."""
-    
-    country = preferences.get('destination_country', 'France')
-    budget_type = preferences.get('budget_type', 'mid_range')
-    interests = preferences.get('interests', [])
-    budget = preferences.get('budget', 150)
-    
-    if GEMINI_AVAILABLE:
-        try:
-            prompt = f"""
-            As a travel expert, recommend 3 specific destinations in {country} based on these preferences:
-            - Budget type: {budget_type}
-            - Daily budget: ${budget}
-            - Interests: {', '.join(interests) if interests else 'general tourism'}
-            - Group size: {preferences.get('group_size', 2)}
-            
-            For each destination, provide:
-            1. City/destination name
-            2. 3-4 reasons why it's perfect for this traveler
-            3. Best time to visit
-            4. Estimated daily budget breakdown (accommodation, food, activities, transport)
-            5. Top 3-5 highlights/attractions
-            
-            Format as JSON array with this structure:
-            [
-                {{
-                    "destination": "City Name",
-                    "reasons": ["reason1", "reason2", "reason3"],
-                    "best_time_to_visit": "season/months",
-                    "estimated_budget": {{
-                        "accommodation": 80,
-                        "food": 50,
-                        "activities": 40,
-                        "transport": 20
-                    }},
-                    "highlights": ["attraction1", "attraction2", "attraction3"]
-                }}
-            ]
-            """
-            
-            response = model.generate_content(prompt)
-            
-            # Try to parse JSON response
-            try:
-                # Clean the response text
-                response_text = response.text.strip()
-                if response_text.startswith('```json'):
-                    response_text = response_text[7:]
-                if response_text.endswith('```'):
-                    response_text = response_text[:-3]
-                    
-                recommendations = json.loads(response_text.strip())
-                if isinstance(recommendations, list) and len(recommendations) > 0:
-                    return recommendations
-            except json.JSONDecodeError:
-                logger.warning("Failed to parse Gemini JSON response, using fallback")
-                
-        except Exception as e:
-            logger.error(f"Gemini API error: {e}")
-    
-    # Fallback recommendations
-    return get_fallback_recommendations(country, budget_type, interests, budget)
-
-def generate_itinerary(preferences: Dict[str, Any], destination: str) -> Dict[str, Any]:
-    """Generate a detailed itinerary for the selected destination."""
-    
-    start_date = preferences.get('start_date')
-    end_date = preferences.get('end_date')
-    interests = preferences.get('interests', [])
-    budget = preferences.get('budget', 150)
-    group_size = preferences.get('group_size', 2)
-    
-    if GEMINI_AVAILABLE:
-        try:
-            prompt = f"""
-            Create a detailed {(end_date - start_date).days if start_date and end_date else 5}-day itinerary for {destination}.
-            
-            Traveler preferences:
-            - Interests: {', '.join(interests) if interests else 'general sightseeing'}
-            - Daily budget: ${budget}
-            - Group size: {group_size}
-            - Travel dates: {start_date} to {end_date}
-            
-            Provide:
-            1. Daily activities with time slots
-            2. Budget breakdown by category
-            3. Restaurant recommendations
-            4. Accommodation suggestions
-            
-            Format as JSON:
-            {{
-                "daily_activities": [
-                    {{
-                        "day": 1,
-                        "date": "YYYY-MM-DD",
-                        "activities": [
-                            {{
-                                "time": "9:00 AM",
-                                "activity": "Activity name",
-                                "description": "Brief description",
-                                "cost": 25,
-                                "duration": "2 hours"
-                            }}
-                        ]
-                    }}
-                ],
-                "budget_breakdown": {{
-                    "accommodation": 400,
-                    "food": 300,
-                    "activities": 200,
-                    "transport": 100,
-                    "total": 1000
-                }},
-                "recommended_restaurants": [
-                    {{
-                        "name": "Restaurant Name",
-                        "cuisine": "Type",
-                        "price_range": "$$",
-                        "specialty": "Famous dish"
-                    }}
-                ],
-                "accommodation_suggestions": [
-                    {{
-                        "name": "Hotel Name",
-                        "type": "hotel/hostel/etc",
-                        "price_per_night": 80,
-                        "rating": 4.5,
-                        "location": "Area name"
-                    }}
-                ]
-            }}
-            """
-            
-            response = model.generate_content(prompt)
-            
-            try:
-                response_text = response.text.strip()
-                if response_text.startswith('```json'):
-                    response_text = response_text[7:]
-                if response_text.endswith('```'):
-                    response_text = response_text[:-3]
-                    
-                itinerary = json.loads(response_text.strip())
-                return itinerary
-                
-            except json.JSONDecodeError:
-                logger.warning("Failed to parse Gemini itinerary response, using fallback")
-                
-        except Exception as e:
-            logger.error(f"Gemini API error generating itinerary: {e}")
-    
-    # Fallback itinerary
-    return get_fallback_itinerary(destination, preferences)
-
-def get_travel_tips(destination: str, preferences: Dict[str, Any]) -> List[str]:
-    """Get travel tips for the destination."""
-    
-    if GEMINI_AVAILABLE:
-        try:
-            prompt = f"""
-            Provide 5-7 practical travel tips for visiting {destination}.
-            Consider:
-            - Budget type: {preferences.get('budget_type', 'mid_range')}
-            - Interests: {', '.join(preferences.get('interests', []))}
-            - Group size: {preferences.get('group_size', 2)}
-            
-            Focus on:
-            - Local customs and etiquette
-            - Money and payment tips
-            - Transportation advice
-            - Safety considerations
-            - Best times to visit attractions
-            - Local food recommendations
-            
-            Return as a JSON array of strings:
-            ["tip1", "tip2", "tip3", ...]
-            """
-            
-            response = model.generate_content(prompt)
-            
-            try:
-                response_text = response.text.strip()
-                if response_text.startswith('```json'):
-                    response_text = response_text[7:]
-                if response_text.endswith('```'):
-                    response_text = response_text[:-3]
-                    
-                tips = json.loads(response_text.strip())
-                if isinstance(tips, list):
-                    return tips
-                    
-            except json.JSONDecodeError:
-                logger.warning("Failed to parse Gemini tips response, using fallback")
-                
-        except Exception as e:
-            logger.error(f"Gemini API error getting travel tips: {e}")
-    
-    # Fallback tips
-    return get_fallback_tips(destination)
-
-def get_fallback_recommendations(country: str, budget_type: str, interests: List[str], budget: float) -> List[Dict[str, Any]]:
-    """Fallback recommendations when AI is unavailable."""
-    
-    fallback_data = {
-        'France': [
-            {
-                'destination': 'Paris',
-                'reasons': ['Iconic landmarks like Eiffel Tower', 'World-class museums and art', 'Romantic atmosphere', 'Excellent cuisine and wine'],
-                'best_time_to_visit': 'Late spring to early autumn (May-September)',
-                'estimated_budget': {'accommodation': 120, 'food': 60, 'activities': 50, 'transport': 20},
-                'highlights': ['Eiffel Tower', 'Louvre Museum', 'Notre-Dame Cathedral', 'Seine River Cruise', 'Montmartre']
-            },
-            {
-                'destination': 'Nice',
-                'reasons': ['Beautiful Mediterranean coast', 'Vibrant Old Town', 'Perfect weather', 'Gateway to French Riviera'],
-                'best_time_to_visit': 'May to September',
-                'estimated_budget': {'accommodation': 100, 'food': 50, 'activities': 40, 'transport': 15},
-                'highlights': ['Promenade des Anglais', 'Old Town', 'Castle Hill', 'Beach clubs', 'Day trips to Monaco']
-            },
-            {
-                'destination': 'Lyon',
-                'reasons': ['UNESCO World Heritage sites', 'Gastronomic capital', 'Beautiful Renaissance architecture', 'Less crowded than Paris'],
-                'best_time_to_visit': 'April to October',
-                'estimated_budget': {'accommodation': 90, 'food': 55, 'activities': 35, 'transport': 20},
-                'highlights': ['Vieux Lyon', 'Basilica of Notre-Dame', 'Traboules', 'Food markets', 'Parc de la Tête d\'Or']
-            }
-        ],
-        'Italy': [
-            {
-                'destination': 'Rome',
-                'reasons': ['Ancient history and ruins', 'Vatican City', 'Amazing Italian cuisine', 'Walkable historic center'],
-                'best_time_to_visit': 'April to June, September to October',
-                'estimated_budget': {'accommodation': 110, 'food': 55, 'activities': 45, 'transport': 15},
-                'highlights': ['Colosseum', 'Vatican Museums', 'Roman Forum', 'Trevi Fountain', 'Pantheon']
-            },
-            {
-                'destination': 'Florence',
-                'reasons': ['Renaissance art and architecture', 'Compact historic center', 'Excellent museums', 'Tuscan cuisine'],
-                'best_time_to_visit': 'April to June, September to October',
-                'estimated_budget': {'accommodation': 100, 'food': 50, 'activities': 40, 'transport': 10},
-                'highlights': ['Duomo Cathedral', 'Uffizi Gallery', 'Ponte Vecchio', 'Palazzo Pitti', 'Boboli Gardens']
-            },
-            {
-                'destination': 'Venice',
-                'reasons': ['Unique canal system', 'Romantic gondola rides', 'St. Mark\'s Square', 'Rich maritime history'],
-                'best_time_to_visit': 'April to June, September to November',
-                'estimated_budget': {'accommodation': 130, 'food': 60, 'activities': 50, 'transport': 20},
-                'highlights': ['St. Mark\'s Basilica', 'Doge\'s Palace', 'Rialto Bridge', 'Gondola rides', 'Murano Island']
-            }
-        ]
-    }
-    
-    return fallback_data.get(country, fallback_data['France'])
-
-def get_fallback_itinerary(destination: str, preferences: Dict[str, Any]) -> Dict[str, Any]:
-    """Fallback itinerary when AI is unavailable."""
-    
-    return {
-        'daily_activities': [
-            {
-                'day': 1,
-                'date': str(preferences.get('start_date', '2024-06-01')),
-                'activities': [
-                    {
-                        'time': '9:00 AM',
-                        'activity': f'Arrival in {destination}',
-                        'description': 'Check-in to accommodation and get oriented',
-                        'cost': 0,
-                        'duration': '2 hours'
-                    },
-                    {
-                        'time': '11:00 AM',
-                        'activity': 'City Walking Tour',
-                        'description': 'Explore the main historic areas and get your bearings',
-                        'cost': 25,
-                        'duration': '3 hours'
-                    },
-                    {
-                        'time': '2:00 PM',
-                        'activity': 'Local Lunch',
-                        'description': 'Try traditional local cuisine',
-                        'cost': 35,
-                        'duration': '1.5 hours'
-                    },
-                    {
-                        'time': '4:00 PM',
-                        'activity': 'Main Attraction Visit',
-                        'description': f'Visit the most famous landmark in {destination}',
-                        'cost': 20,
-                        'duration': '2 hours'
-                    }
-                ]
-            },
-            {
-                'day': 2,
-                'date': str(preferences.get('start_date', '2024-06-02')),
-                'activities': [
-                    {
-                        'time': '9:00 AM',
-                        'activity': 'Museum Visit',
-                        'description': 'Explore local art and history',
-                        'cost': 15,
-                        'duration': '3 hours'
-                    },
-                    {
-                        'time': '1:00 PM',
-                        'activity': 'Local Market Tour',
-                        'description': 'Experience local culture and food',
-                        'cost': 30,
-                        'duration': '2 hours'
-                    },
-                    {
-                        'time': '4:00 PM',
-                        'activity': 'Neighborhood Exploration',
-                        'description': 'Discover hidden gems and local life',
-                        'cost': 10,
-                        'duration': '3 hours'
-                    }
-                ]
-            }
-        ],
-        'budget_breakdown': {
-            'accommodation': int(preferences.get('budget', 150) * 0.4 * 5),
-            'food': int(preferences.get('budget', 150) * 0.3 * 5),
-            'activities': int(preferences.get('budget', 150) * 0.2 * 5),
-            'transport': int(preferences.get('budget', 150) * 0.1 * 5),
-            'total': int(preferences.get('budget', 150) * 5)
-        },
-        'recommended_restaurants': [
-            {
-                'name': f'Local Bistro {destination}',
-                'cuisine': 'Local',
-                'price_range': '$$',
-                'specialty': 'Traditional dishes'
-            },
-            {
-                'name': f'{destination} Market Cafe',
-                'cuisine': 'Casual',
-                'price_range': '$',
-                'specialty': 'Fresh local ingredients'
-            }
-        ],
-        'accommodation_suggestions': [
-            {
-                'name': f'{destination} Central Hotel',
-                'type': 'hotel',
-                'price_per_night': int(preferences.get('budget', 150) * 0.4),
-                'rating': 4.2,
-                'location': 'City Center'
-            }
-        ]
-    }
-
-def get_fallback_tips(destination: str) -> List[str]:
-    """Fallback travel tips when AI is unavailable."""
-    
-    return [
-        f"Research local customs and etiquette before visiting {destination}",
-        "Always carry some local currency for small purchases and tips",
-        "Download offline maps and translation apps before traveling",
-        "Book popular attractions in advance to avoid long queues",
-        "Try local specialties but be cautious with street food if you have a sensitive stomach",
-        "Keep copies of important documents in separate locations",
-        "Learn a few basic phrases in the local language - locals appreciate the effort"
-    ]
+    return response
