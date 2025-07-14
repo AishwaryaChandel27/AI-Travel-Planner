@@ -1,78 +1,108 @@
 {% extends "base.html" %}
 
-{% block title %}Destination Recommendations - AI Travel Planner{% endblock %}
+{% block title %}AI Recommended Destinations - Travel Planner{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="text-center mb-5">
-        <h2 class="display-5">
-            <i class="fas fa-map-marker-alt me-3"></i>
-            Perfect Destinations for You
-        </h2>
-        <p class="lead">Our AI has analyzed your preferences and found these amazing destinations!</p>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center mb-5">
+                <div class="ai-badge mb-3">
+                    <i class="fas fa-brain"></i>
+                    AI Powered Recommendations
+                </div>
+                <h1 class="display-5 fw-bold mb-3">
+                    Perfect Destinations for You
+                </h1>
+                <p class="lead text-muted">Our AI has analyzed your preferences and found these amazing destinations</p>
+            </div>
+        </div>
     </div>
 
     <div class="row g-4">
         {% for recommendation in recommendations %}
-        <div class="col-lg-4 col-md-6">
-            <div class="card h-100 destination-card">
-                <div class="card-img-wrapper position-relative">
-                    <img src="{{ recommendation.image_url }}" class="card-img-top" alt="{{ recommendation.destination }}" style="height: 200px; object-fit: cover;">
-                    <div class="card-img-overlay d-flex align-items-end p-0">
-                        <div class="w-100 p-3" style="background: linear-gradient(transparent, rgba(0,0,0,0.8));">
-                            <h5 class="card-title text-white mb-0">{{ recommendation.destination }}</h5>
-                        </div>
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="ai-response-card h-100">
+                {% if recommendation.image_url %}
+                <div class="position-relative overflow-hidden">
+                    <img src="{{ recommendation.image_url }}" class="destination-image w-100" alt="{{ recommendation.destination }}">
+                    <div class="position-absolute top-0 start-0 m-3">
+                        <span class="ai-badge">
+                            <i class="fas fa-sparkles"></i>
+                            AI Recommended
+                        </span>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <h6 class="text-primary">
-                            <i class="fas fa-heart me-2"></i>Why it's perfect for you:
+                {% endif %}
+
+                <div class="card-body p-4">
+                    <h4 class="card-title text-primary fw-bold mb-3">
+                        <i class="fas fa-map-marker-alt me-2"></i>
+                        {{ recommendation.destination }}
+                    </h4>
+
+                    <div class="recommendation-reasons mb-4">
+                        <h6 class="fw-bold mb-3">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>
+                            Why it's perfect for you:
                         </h6>
-                        <ul class="list-unstyled small">
+                        <ul class="list-unstyled">
                             {% for reason in recommendation.reasons %}
-                            <li class="mb-1">
-                                <i class="fas fa-check text-success me-2"></i>{{ reason }}
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                {{ reason }}
                             </li>
                             {% endfor %}
                         </ul>
                     </div>
 
-                    <div class="mb-3">
-                        <h6 class="text-info">
-                            <i class="fas fa-calendar me-2"></i>Best Time to Visit:
-                        </h6>
-                        <p class="small mb-0">{{ recommendation.best_time_to_visit }}</p>
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fas fa-calendar-alt text-info me-2"></i>
+                                <strong>Best Time to Visit:</strong>
+                            </div>
+                            <p class="text-muted ps-3">{{ recommendation.best_time_to_visit }}</p>
+                        </div>
                     </div>
 
-                    <div class="mb-3">
-                        <h6 class="text-warning">
-                            <i class="fas fa-dollar-sign me-2"></i>Estimated Budget:
+                    {% if recommendation.estimated_budget %}
+                    <div class="budget-breakdown mb-4">
+                        <h6 class="fw-bold mb-3">
+                            <i class="fas fa-coins text-warning me-2"></i>
+                            Daily Budget Breakdown:
                         </h6>
-                        <div class="row text-center small">
+                        <div class="row g-2">
                             {% for category, amount in recommendation.estimated_budget.items() %}
-                            <div class="col-6 mb-1">
-                                <strong>{{ category.title() }}:</strong> ${{ amount }}
+                            <div class="col-6">
+                                <div class="text-center p-2 bg-dark rounded">
+                                    <div class="small text-muted">{{ category.title() }}</div>
+                                    <div class="fw-bold text-primary">${{ amount }}</div>
+                                </div>
                             </div>
                             {% endfor %}
                         </div>
                     </div>
+                    {% endif %}
 
-                    <div class="mb-3">
-                        <h6 class="text-danger">
-                            <i class="fas fa-star me-2"></i>Top Highlights:
+                    <div class="mb-4">
+                        <h6 class="fw-bold mb-3">
+                            <i class="fas fa-star text-warning me-2"></i>
+                            Top Highlights:
                         </h6>
-                        <div class="highlights-container">
-                            {% for highlight in recommendation.highlights[:3] %}
-                            <span class="badge bg-secondary me-1 mb-1">{{ highlight }}</span>
+                        <div class="d-flex flex-wrap">
+                            {% for highlight in recommendation.highlights %}
+                            <span class="highlight-item">{{ highlight }}</span>
                             {% endfor %}
                         </div>
                     </div>
                 </div>
-                <div class="card-footer">
+
+                <div class="card-footer bg-transparent border-0 p-4">
                     <a href="{{ url_for('select_destination', destination_index=loop.index0) }}" 
-                       class="btn btn-primary w-100">
-                        <i class="fas fa-route me-2"></i>Choose This Destination
+                       class="btn btn-primary btn-lg w-100 fw-bold">
+                        <i class="fas fa-paper-plane me-2"></i>
+                        Plan My Trip Here
                     </a>
                 </div>
             </div>
@@ -80,25 +110,67 @@
         {% endfor %}
     </div>
 
-    <div class="text-center mt-5">
-        <a href="{{ url_for('preferences') }}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-2"></i>Back to Preferences
-        </a>
+    <!-- AI Insights Section -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="ai-response-card p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="fas fa-robot text-primary me-3 fs-3"></i>
+                    <div>
+                        <h5 class="mb-1">AI Travel Insights</h5>
+                        <p class="text-muted mb-0">Personalized recommendations based on your preferences</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="travel-tip">
+                            <h6 class="fw-bold">Smart Budget Planning</h6>
+                            <p class="mb-0">These destinations match your budget preference and offer great value for money.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="travel-tip">
+                            <h6 class="fw-bold">Interest Alignment</h6>
+                            <p class="mb-0">Each destination offers activities that match your selected interests perfectly.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="travel-tip">
+                            <h6 class="fw-bold">Optimal Timing</h6>
+                            <p class="mb-0">Visit dates are optimized for the best weather and local experiences.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <a href="{{ url_for('preferences') }}" class="btn btn-outline-secondary btn-lg me-3">
+                <i class="fas fa-arrow-left me-2"></i>Modify Preferences
+            </a>
+            <a href="{{ url_for('reset') }}" class="btn btn-outline-danger btn-lg">
+                <i class="fas fa-refresh me-2"></i>Start Over
+            </a>
+        </div>
     </div>
 </div>
 
-<style>
-.destination-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.destination-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-}
-
-.highlights-container .badge {
-    font-size: 0.75em;
-}
-</style>
+<script>
+// Add loading animation while AI processes
+document.addEventListener('DOMContentLoaded', function() {
+    // Add subtle animations to cards
+    const cards = document.querySelectorAll('.ai-response-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        setTimeout(() => {
+            card.style.transition = 'all 0.6s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 200);
+    });
+});
+</script>
 {% endblock %}

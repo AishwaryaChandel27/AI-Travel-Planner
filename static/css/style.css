@@ -265,22 +265,22 @@
     .hero-section {
         padding: 2rem 0;
     }
-    
+
     .hero-section h1 {
         font-size: 2rem;
     }
-    
+
     .day-item {
         margin-left: 0;
         border-left: none;
         border-top: 4px solid var(--bs-primary);
         padding-left: 0;
     }
-    
+
     .day-item::before {
         display: none;
     }
-    
+
     .booking-actions {
         padding: 1rem;
     }
@@ -430,4 +430,201 @@ footer {
 @keyframes slideIn {
     from { transform: translateX(-100%); }
     to { transform: translateX(0); }
+}
+
+/* Add your custom styles here */
+body {
+    background-color: #1a1a1a;
+}
+
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.card {
+    background-color: #2d2d2d;
+    border: 1px solid #404040;
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(45deg, #5a67d8, #6b46c1);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+}
+
+/* AI Response Cards */
+.ai-response-card {
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+    border: 2px solid #667eea;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.ai-response-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+}
+
+.ai-response-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.destination-image {
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.destination-image:hover {
+    transform: scale(1.05);
+}
+
+.ai-badge {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.recommendation-reasons {
+    background: rgba(102, 126, 234, 0.1);
+    border-left: 4px solid #667eea;
+    padding: 15px;
+    border-radius: 0 10px 10px 0;
+    margin: 10px 0;
+}
+
+.budget-breakdown {
+    background: rgba(118, 75, 162, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+}
+
+.highlight-item {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 8px 12px;
+    border-radius: 20px;
+    margin: 5px;
+    display: inline-block;
+    border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+.ai-thinking {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+.ai-thinking .spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #667eea;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.itinerary-day {
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+    border-radius: 15px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    border: 1px solid #667eea;
+}
+
+.itinerary-day-header {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    padding: 15px;
+    color: white;
+    font-weight: bold;
+}
+
+.activity-timeline {
+    position: relative;
+    padding: 20px;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    border-left: 4px solid #667eea;
+}
+
+.activity-time {
+    background: #667eea;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    min-width: 80px;
+    text-align: center;
+    margin-right: 15px;
+}
+
+.travel-tip {
+    background: rgba(240, 147, 251, 0.1);
+    border: 1px solid #f093fb;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 10px 0;
+    position: relative;
+}
+
+.travel-tip::before {
+    content: '💡';
+    position: absolute;
+    top: -10px;
+    left: 15px;
+    background: #2d3748;
+    padding: 5px;
+    border-radius: 50%;
+}
+
+.loading-skeleton {
+    background: linear-gradient(90deg, #2d3748 25%, #4a5568 50%, #2d3748 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }
