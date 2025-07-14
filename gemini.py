@@ -1,16 +1,15 @@
-# Analyze the code changes and combine them with the original code to generate the complete modified code.
-```
-```replit_final_file
+
+import json
+import os
+import logging
+from typing import List, Dict, Any
+from pydantic import BaseModel, Field
+
 try:
     import google.generativeai as genai
     GENAI_AVAILABLE = True
 except ImportError:
     GENAI_AVAILABLE = False
-
-import os
-import logging
-from typing import List, Dict, Any
-from pydantic import BaseModel, Field
 
 # Initialize Gemini client
 api_key = os.environ.get("GEMINI_API_KEY")
@@ -45,7 +44,7 @@ class ItineraryPlan(BaseModel):
     recommended_restaurants: list[dict]
     accommodation_suggestions: list[dict]
 
-def get_destination_recommendations(preferences: dict) -> list[TravelRecommendation]:
+def get_ai_destination_recommendations(preferences: dict) -> list[TravelRecommendation]:
     """Get AI-powered destination recommendations based on user preferences."""
     # Use fallback if no API key available
     if not client:
@@ -56,6 +55,7 @@ def get_destination_recommendations(preferences: dict) -> list[TravelRecommendat
         interests_str = ", ".join(preferences.get('interests', []))
         country_info = preferences.get('country_info', {})
         popular_destinations = preferences.get('popular_destinations', [])
+        destinations_str = ", ".join(popular_destinations) if popular_destinations else "various destinations"
         currency = country_info.get('currency', 'USD')
 
         prompt = f"""
@@ -87,7 +87,7 @@ def get_destination_recommendations(preferences: dict) -> list[TravelRecommendat
         Focus on destinations that match the budget type and interests. Be specific about costs in {currency}.
         """
 
-        response = genai.GenerativeModel('gemini-2.5-flash').generate_content(prompt)
+        response = genai.GenerativeModel('gemini-2.0-flash-exp').generate_content(prompt)
 
         if response.text:
             try:
@@ -257,14 +257,17 @@ def generate_itinerary(preferences: dict, destination: str) -> ItineraryPlan:
         Consider local customs, tipping practices, and cultural norms.
         """
 
-        response = genai.GenerativeModel('gemini-2.5-pro').generate_content(prompt)
+        response = genai.GenerativeModel('gemini-2.0-flash-exp').generate_content(prompt)
 
         if response.text:
             # Parse the response into a structured format
             class ItineraryPlan:
                 def __init__(self):
+                    self.destination = destination
+                    self.duration_days = duration
                     self.daily_activities = []
                     self.budget_breakdown = {}
+                    self.travel_tips = []
                     self.recommended_restaurants = []
                     self.accommodation_suggestions = []
 
@@ -382,77 +385,24 @@ def generate_itinerary(preferences: dict, destination: str) -> ItineraryPlan:
                     }
                 ]
 
+            # Add default travel tips if none were parsed
+            if not plan.travel_tips:
+                plan.travel_tips = [
+                    f'Research local customs before visiting {destination}',
+                    'Always carry local currency for small purchases',
+                    'Download offline maps and translation apps',
+                    'Keep copies of important documents',
+                    'Learn basic phrases in the local language'
+                ]
+
             return plan
         else:
-            return None
+            return get_fallback_itinerary(preferences, destination)
 
     except Exception as e:
         logging.error(f"Error generating itinerary: {e}")
         # Return a basic fallback itinerary
         return get_fallback_itinerary(preferences, destination)
-
-def get_travel_tips(destination: str, preferences: dict) -> list[str]:
-    """Get AI-powered travel tips for the destination."""
-    # Use fallback if no API key available
-    if not client:
-        return [
-            f'Research local customs before visiting {destination}',
-            'Always carry local currency for small purchases',
-            'Download offline maps and translation apps',
-            'Keep copies of important documents',
-            'Learn basic phrases in the local language',
-            'Respect local dress codes and traditions',
-            'Stay aware of your surroundings',
-            'Try local cuisine but be cautious with street food'
-        ]
-
-    try:
-        country_info = preferences.get('country_info', {})
-        currency = country_info.get('currency', 'USD')
-
-        prompt = f"""
-        Provide 8 essential travel tips for visiting {destination} in {preferences.get('destination_country')} considering:
-
-        USER CONTEXT:
-        - Budget Type: {preferences.get('budget_type', 'mid_range')}
-        - Daily Budget: {preferences.get('budget', 100)} {currency}
-        - Group size: {preferences.get('group_size', 1)} people
-        - Interests: {', '.join(preferences.get('interests', []))}
-
-        COUNTRY CONTEXT:
-        - Currency: {currency}
-        - Language: {country_info.get('language', 'Local language')}
-        - Cultural notes: {country_info.get('cultural_notes', 'No specific notes')}
-        - Visa requirements: {country_info.get('visa_info', 'Check requirements')}
-
-        Focus on practical advice about:
-        - Local customs and etiquette specific to {preferences.get('destination_country')}
-        - Money-saving tips and currency exchange
-        - Safety considerations and local laws
-        - Best ways to get around {destination}
-        - Food and dining recommendations with local specialties
-        - Cultural insights and social norms
-        - Packing suggestions for local climate/culture
-        - Language tips and useful phrases
-
-        Make tips specific to {destination} and {preferences.get('destination_country')}.
-        Return as a JSON array of strings.
-        """
-
-        response = genai.GenerativeModel('gemini-2.5-flash').generate_content(prompt)
-
-        if response.text:
-            try:
-                return json.loads(response.text)
-            except json.JSONDecodeError as e:
-                logging.error(f"JSONDecodeError: {e}, Response Text: {response.text}")
-                return []
-        else:
-            return []
-
-    except Exception as e:
-        logging.error(f"Error getting travel tips: {e}")
-        return []
 
 def get_fallback_itinerary(preferences: dict, destination: str) -> ItineraryPlan:
     """Generate a fallback itinerary when AI is not available."""
@@ -527,4 +477,3 @@ def get_fallback_itinerary(preferences: dict, destination: str) -> ItineraryPlan
         recommended_restaurants=recommended_restaurants,
         accommodation_suggestions=accommodation_suggestions
     )
-```This code refactors the AI response parsing and improves error handling for destination recommendations and itinerary generation.
