@@ -66,11 +66,6 @@ class Itinerary(db.Model):
                 return []
         return []
 
-    @activities_list.setter
-    def activities_list(self, value):
-        """Set activities from a list"""
-        self.activities = json.dumps(value) if value else None
-
     @property
     def budget_breakdown_dict(self):
         """Get budget breakdown as a dict"""
@@ -81,11 +76,6 @@ class Itinerary(db.Model):
                 return {}
         return {}
 
-    @budget_breakdown_dict.setter
-    def budget_breakdown_dict(self, value):
-        """Set budget breakdown from a dict"""
-        self.budget_breakdown = json.dumps(value) if value else None
-
     @property
     def recommendations_dict(self):
         """Get recommendations as a dict"""
@@ -95,11 +85,6 @@ class Itinerary(db.Model):
             except:
                 return {}
         return {}
-
-    @recommendations_dict.setter
-    def recommendations_dict(self, value):
-        """Set recommendations from a dict"""
-        self.recommendations = json.dumps(value) if value else None
 
 class Booking(db.Model):
     __tablename__ = 'bookings'
@@ -127,8 +112,3 @@ class Booking(db.Model):
             except:
                 return {}
         return {}
-
-    @details_dict.setter
-    def details_dict(self, value):
-        """Set details from a dict"""
-        self.details = json.dumps(value) if value else None
