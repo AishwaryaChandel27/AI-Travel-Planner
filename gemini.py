@@ -35,18 +35,18 @@ def get_destination_recommendations(preferences: dict) -> list[TravelRecommendat
     if not client:
         logging.info("Using fallback recommendations due to missing API key")
         return get_fallback_recommendations(preferences)
-    
+
     try:
         interests_str = ", ".join(preferences.get('interests', []))
         country_info = preferences.get('country_info', {})
         popular_destinations = preferences.get('popular_destinations', [])
         currency = country_info.get('currency', 'USD')
-        
+
         destinations_str = ", ".join(popular_destinations) if popular_destinations else "major cities and attractions"
-        
+
         prompt = f"""
         As a travel expert, recommend 3 specific destinations in {preferences.get('destination_country', 'the selected country')} based on these preferences:
-        
+
         USER PREFERENCES:
         - Country: {preferences.get('destination_country')}
         - Budget Type: {preferences.get('budget_type', 'mid_range')}
@@ -56,20 +56,20 @@ def get_destination_recommendations(preferences: dict) -> list[TravelRecommendat
         - Travel dates: {preferences.get('start_date', 'Flexible')} to {preferences.get('end_date', 'Flexible')}
         - Accommodation: {preferences.get('accommodation_type', 'hotel')}
         - Transport: {preferences.get('transport_preference', 'public transport')}
-        
+
         COUNTRY INFORMATION:
         - Currency: {currency}
         - Popular destinations: {destinations_str}
         - Best time to visit: {country_info.get('best_time', 'Year-round')}
         - Cultural notes: {country_info.get('cultural_notes', 'No specific notes')}
-        
+
         For each destination, provide:
         - Destination name (choose from popular destinations or suggest similar)
         - 3-4 reasons why it's perfect for these preferences
         - Best time to visit (considering local seasons)
         - Estimated budget breakdown in {currency} (accommodation, food, activities, transport)
         - Top 5 highlights/attractions specific to this destination
-        
+
         Focus on destinations that match the budget type and interests. Be specific about costs in {currency}.
         """
 
@@ -99,7 +99,7 @@ def get_fallback_recommendations(preferences: dict) -> list[TravelRecommendation
     currency = country_info.get('currency', 'USD')
     popular_destinations = preferences.get('popular_destinations', [])
     budget_type = preferences.get('budget_type', 'mid_range')
-    
+
     # Country-specific fallback data
     fallback_data = {
         'Japan': [
@@ -183,7 +183,7 @@ def get_fallback_recommendations(preferences: dict) -> list[TravelRecommendation
             }
         ]
     }
-    
+
     # Get fallback recommendations for the country
     if country in fallback_data:
         recommendations = []
@@ -208,16 +208,16 @@ def generate_itinerary(preferences: dict, destination: str) -> ItineraryPlan:
     if not client:
         logging.info("Using fallback itinerary due to missing API key")
         return get_fallback_itinerary(preferences, destination)
-    
+
     try:
         interests_str = ", ".join(preferences.get('interests', []))
         duration = (preferences.get('end_date') - preferences.get('start_date')).days if preferences.get('end_date') and preferences.get('start_date') else 7
         country_info = preferences.get('country_info', {})
         currency = country_info.get('currency', 'USD')
-        
+
         prompt = f"""
         Create a detailed {duration}-day itinerary for {destination} in {preferences.get('destination_country')} based on these preferences:
-        
+
         USER PREFERENCES:
         - Country: {preferences.get('destination_country')}
         - Budget Type: {preferences.get('budget_type', 'mid_range')}
@@ -226,20 +226,20 @@ def generate_itinerary(preferences: dict, destination: str) -> ItineraryPlan:
         - Group size: {preferences.get('group_size', 1)} people
         - Accommodation: {preferences.get('accommodation_type', 'hotel')}
         - Transport: {preferences.get('transport_preference', 'public transport')}
-        
+
         COUNTRY CONTEXT:
         - Currency: {currency}
         - Best time to visit: {country_info.get('best_time', 'Year-round')}
         - Cultural notes: {country_info.get('cultural_notes', 'No specific notes')}
         - Language: {country_info.get('language', 'Local language')}
-        
+
         Include:
         - Daily activities with timings and descriptions (consider local customs and opening hours)
         - Budget breakdown in {currency} (accommodation, food, activities, transport, miscellaneous)
         - 5 essential travel tips specific to {destination} and {preferences.get('destination_country')}
         - Top 5 recommended restaurants with local cuisine types and price ranges in {currency}
         - 3 accommodation suggestions with price ranges in {currency} matching the {preferences.get('budget_type')} budget type
-        
+
         Make it practical, realistic, and culturally appropriate for {preferences.get('destination_country')}.
         Consider local customs, tipping practices, and cultural norms.
         """
@@ -286,36 +286,62 @@ def get_travel_tips(destination: str, preferences: dict) -> list[str]:
             'Stay aware of your surroundings',
             'Try local cuisine but be cautious with street food'
         ]
-    
+
     try:
         country_info = preferences.get('country_info', {})
         currency = country_info.get('currency', 'USD')
-        
+
         prompt = f"""
         Provide 8 essential travel tips for visiting {destination} in {preferences.get('destination_country')} considering:
-        
+
         USER CONTEXT:
         - Budget Type: {preferences.get('budget_type', 'mid_range')}
         - Daily Budget: {preferences.get('budget', 100)} {currency}
         - Group size: {preferences.get('group_size', 1)} people
         - Interests: {', '.join(preferences.get('interests', []))}
-        
+
         COUNTRY CONTEXT:
         - Currency: {currency}
         - Language: {country_info.get('language', 'Local language')}
         - Cultural notes: {country_info.get('cultural_notes', 'No specific notes')}
         - Visa requirements: {country_info.get('visa_info', 'Check requirements')}
-        
+
         Focus on practical advice about:
         - Local customs and etiquette specific to {preferences.get('destination_country')}
         - Money-saving tips and currency exchange
         - Safety considerations and local laws
+        - Best ways to get around {destination}
+        - Food and dining recommendations with local specialties
+        - Cultural insights and social norms
+        - Packing suggestions for local climate/culture
+        - Language tips and useful phrases
 
+        Make tips specific to {destination} and {preferences.get('destination_country')}.
+        Return as a JSON array of strings.
+        """
+
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                response_schema=list[str],
+            ),
+        )
+
+        if response.text:
+            return json.loads(response.text)
+        else:
+            return []
+
+    except Exception as e:
+        logging.error(f"Error getting travel tips: {e}")
+        return []
 
 def get_fallback_itinerary(preferences: dict, destination: str) -> ItineraryPlan:
     """Generate a fallback itinerary when AI is not available."""
     duration = (preferences.get('end_date') - preferences.get('start_date')).days if preferences.get('end_date') and preferences.get('start_date') else 3
-    
+
     daily_activities = []
     for i in range(duration):
         day_activities = [
@@ -348,26 +374,26 @@ def get_fallback_itinerary(preferences: dict, destination: str) -> ItineraryPlan
             'day': f'Day {i+1}',
             'activities': day_activities
         })
-    
+
     budget_breakdown = {
         'accommodation': 100 * duration,
         'food': 60 * duration,
         'activities': 40 * duration,
         'transport': 30 * duration
     }
-    
+
     recommended_restaurants = [
         {'name': f'{destination} Local Bistro', 'cuisine': 'Local', 'price_range': '20-40'},
         {'name': f'{destination} Fine Dining', 'cuisine': 'International', 'price_range': '50-80'},
         {'name': f'{destination} Street Food', 'cuisine': 'Street Food', 'price_range': '10-20'}
     ]
-    
+
     accommodation_suggestions = [
         {'name': f'{destination} Hotel', 'type': 'Hotel', 'price_range': '80-120'},
         {'name': f'{destination} Boutique Stay', 'type': 'Boutique', 'price_range': '100-150'},
         {'name': f'{destination} Budget Lodge', 'type': 'Hostel', 'price_range': '30-60'}
     ]
-    
+
     travel_tips = [
         f'Research local customs before visiting {destination}',
         'Always carry local currency for small vendors',
@@ -375,7 +401,7 @@ def get_fallback_itinerary(preferences: dict, destination: str) -> ItineraryPlan
         'Learn a few basic phrases in the local language',
         'Keep important documents in a safe place'
     ]
-    
+
     return ItineraryPlan(
         destination=destination,
         duration_days=duration,
@@ -385,31 +411,3 @@ def get_fallback_itinerary(preferences: dict, destination: str) -> ItineraryPlan
         recommended_restaurants=recommended_restaurants,
         accommodation_suggestions=accommodation_suggestions
     )
-
-        - Best ways to get around {destination}
-        - Food and dining recommendations with local specialties
-        - Cultural insights and social norms
-        - Packing suggestions for local climate/culture
-        - Language tips and useful phrases
-        
-        Make tips specific to {destination} and {preferences.get('destination_country')}.
-        Return as a JSON array of strings.
-        """
-
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-                response_schema=list[str],
-            ),
-        )
-
-        if response.text:
-            return json.loads(response.text)
-        else:
-            return []
-
-    except Exception as e:
-        logging.error(f"Error getting travel tips: {e}")
-        return []
