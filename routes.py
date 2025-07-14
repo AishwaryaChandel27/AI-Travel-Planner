@@ -5,6 +5,10 @@ from gemini import get_destination_recommendations, generate_itinerary, get_trav
 from travel_service import TravelService
 from country_data import get_country_info, get_popular_destinations, get_budget_ranges
 from destination_images import get_destination_image_url, get_destination_colors
+import uuid
+import json
+import logging
+from datetime import datetime
 
 travel_service = TravelService()
 
