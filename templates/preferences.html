@@ -1,178 +1,206 @@
+
 {% extends "base.html" %}
 
 {% block title %}Travel Preferences - AI Travel Planner{% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="container-fluid">
     <div class="row justify-content-center">
         <div class="col-lg-8">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="card-title mb-0">
-                        <i class="fas fa-cog me-2"></i>Travel Preferences
-                    </h3>
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h2><i class="fas fa-map-marked-alt me-2"></i>Plan Your Perfect Trip</h2>
+                    <p class="mb-0">Tell us about your travel preferences and let AI create your personalized itinerary</p>
                 </div>
-                {% if not session.get('gemini_available') %}
-                <div class="alert alert-warning mb-0 rounded-0">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    <strong>AI Features Limited:</strong> To get personalized AI recommendations, please set up your Gemini API key in the Secrets tab.
-                    <a href="https://aistudio.google.com/app/apikey" target="_blank" class="alert-link">Get your free API key here</a>.
-                </div>
-                {% endif %}
-                <div class="card-body">
-                    <form method="POST" action="{{ url_for('preferences') }}" id="preferencesForm">
-                        <!-- Destination -->
-                        <div class="mb-4">
-                            <label for="destination_country" class="form-label fw-bold">
-                                <i class="fas fa-globe me-2"></i>Destination Country
-                            </label>
-                            <select class="form-select" id="destination_country" name="destination_country" required>
-                                <option value="">Select a country</option>
-                                <option value="France">France</option>
-                                <option value="Italy">Italy</option>
-                                <option value="Spain">Spain</option>
-                                <option value="Japan">Japan</option>
-                                <option value="Thailand">Thailand</option>
-                                <option value="United States">United States</option>
-                                <option value="United Kingdom">United Kingdom</option>
-                                <option value="Germany">Germany</option>
-                                <option value="Australia">Australia</option>
-                                <option value="Greece">Greece</option>
-                            </select>
-                        </div>
-
-                        <!-- Budget -->
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <label for="budget_type" class="form-label fw-bold">
-                                    <i class="fas fa-wallet me-2"></i>Budget Type
+                
+                <div class="card-body p-4">
+                    <form method="POST" id="preferencesForm">
+                        <div class="row">
+                            <!-- Destination -->
+                            <div class="col-md-6 mb-3">
+                                <label for="destination_country" class="form-label fw-bold">
+                                    <i class="fas fa-globe me-1"></i>Destination Country
                                 </label>
-                                <select class="form-select" id="budget_type" name="budget_type" required>
-                                    <option value="budget">Budget (Low cost)</option>
-                                    <option value="mid_range" selected>Mid-range</option>
-                                    <option value="luxury">Luxury</option>
+                                <select class="form-select" id="destination_country" name="destination_country" required>
+                                    <option value="">Choose your destination...</option>
+                                    <option value="France">France</option>
+                                    <option value="Italy">Italy</option>
+                                    <option value="Spain">Spain</option>
+                                    <option value="Germany">Germany</option>
+                                    <option value="United Kingdom">United Kingdom</option>
+                                    <option value="Japan">Japan</option>
+                                    <option value="Thailand">Thailand</option>
+                                    <option value="Australia">Australia</option>
+                                    <option value="United States">United States</option>
+                                    <option value="Brazil">Brazil</option>
                                 </select>
                             </div>
-                            <div class="col-md-6">
-                                <label for="budget" class="form-label fw-bold">Daily Budget</label>
-                                <input type="number" class="form-control" id="budget" name="budget" 
-                                       min="10" max="10000" value="100" required>
+
+                            <!-- Budget -->
+                            <div class="col-md-6 mb-3">
+                                <label for="budget" class="form-label fw-bold">
+                                    <i class="fas fa-dollar-sign me-1"></i>Budget (USD per day)
+                                </label>
+                                <input type="number" class="form-control" id="budget" name="budget" min="50" max="2000" value="150" required>
                             </div>
                         </div>
 
-                        <!-- Travel Dates -->
-                        <div class="row mb-4">
-                            <div class="col-md-6">
+                        <div class="row">
+                            <!-- Budget Type -->
+                            <div class="col-md-6 mb-3">
+                                <label for="budget_type" class="form-label fw-bold">
+                                    <i class="fas fa-tag me-1"></i>Budget Type
+                                </label>
+                                <select class="form-select" id="budget_type" name="budget_type" required>
+                                    <option value="budget">Budget (Backpacker)</option>
+                                    <option value="mid_range" selected>Mid-Range (Comfortable)</option>
+                                    <option value="luxury">Luxury (Premium)</option>
+                                    <option value="ultra_luxury">Ultra Luxury</option>
+                                </select>
+                            </div>
+
+                            <!-- Group Size -->
+                            <div class="col-md-6 mb-3">
+                                <label for="group_size" class="form-label fw-bold">
+                                    <i class="fas fa-users me-1"></i>Group Size
+                                </label>
+                                <select class="form-select" id="group_size" name="group_size" required>
+                                    <option value="1">Solo Traveler</option>
+                                    <option value="2" selected>Couple</option>
+                                    <option value="3">Small Group (3)</option>
+                                    <option value="4">Family (4)</option>
+                                    <option value="5">Group (5+)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Start Date -->
+                            <div class="col-md-6 mb-3">
                                 <label for="start_date" class="form-label fw-bold">
-                                    <i class="fas fa-calendar me-2"></i>Start Date
+                                    <i class="fas fa-calendar-alt me-1"></i>Start Date
                                 </label>
                                 <input type="date" class="form-control" id="start_date" name="start_date" required>
                             </div>
-                            <div class="col-md-6">
-                                <label for="end_date" class="form-label fw-bold">End Date</label>
+
+                            <!-- End Date -->
+                            <div class="col-md-6 mb-3">
+                                <label for="end_date" class="form-label fw-bold">
+                                    <i class="fas fa-calendar-check me-1"></i>End Date
+                                </label>
                                 <input type="date" class="form-control" id="end_date" name="end_date" required>
                             </div>
-                        </div>
-
-                        <!-- Group Size -->
-                        <div class="mb-4">
-                            <label for="group_size" class="form-label fw-bold">
-                                <i class="fas fa-users me-2"></i>Group Size
-                            </label>
-                            <select class="form-select" id="group_size" name="group_size" required>
-                                <option value="1" selected>Solo (1 person)</option>
-                                <option value="2">Couple (2 people)</option>
-                                <option value="3">Small group (3 people)</option>
-                                <option value="4">Family (4 people)</option>
-                                <option value="5">Group (5+ people)</option>
-                            </select>
                         </div>
 
                         <!-- Interests -->
                         <div class="mb-4">
                             <label class="form-label fw-bold">
-                                <i class="fas fa-heart me-2"></i>Interests (Select all that apply)
+                                <i class="fas fa-heart me-1"></i>What interests you? (Select multiple)
                             </label>
-                            <div class="row">
-                                <div class="col-md-6">
+                            <div class="row g-2">
+                                <div class="col-md-3 col-sm-6">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="interests" value="culture" id="culture">
-                                        <label class="form-check-label" for="culture">Culture & History</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="interests" value="food" id="food">
-                                        <label class="form-check-label" for="food">Food & Dining</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="interests" value="nature" id="nature">
-                                        <label class="form-check-label" for="nature">Nature & Outdoors</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="interests" value="adventure" id="adventure">
-                                        <label class="form-check-label" for="adventure">Adventure Sports</label>
+                                        <label class="form-check-label" for="culture">
+                                            <i class="fas fa-theater-masks me-1"></i>Culture & Arts
+                                        </label>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-3 col-sm-6">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="interests" value="nightlife" id="nightlife">
-                                        <label class="form-check-label" for="nightlife">Nightlife</label>
+                                        <input class="form-check-input" type="checkbox" name="interests" value="food" id="food">
+                                        <label class="form-check-label" for="food">
+                                            <i class="fas fa-utensils me-1"></i>Food & Dining
+                                        </label>
                                     </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="interests" value="adventure" id="adventure">
+                                        <label class="form-check-label" for="adventure">
+                                            <i class="fas fa-mountain me-1"></i>Adventure & Sports
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="interests" value="nature" id="nature">
+                                        <label class="form-check-label" for="nature">
+                                            <i class="fas fa-tree me-1"></i>Nature & Wildlife
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="interests" value="shopping" id="shopping">
-                                        <label class="form-check-label" for="shopping">Shopping</label>
+                                        <label class="form-check-label" for="shopping">
+                                            <i class="fas fa-shopping-bag me-1"></i>Shopping
+                                        </label>
                                     </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="interests" value="nightlife" id="nightlife">
+                                        <label class="form-check-label" for="nightlife">
+                                            <i class="fas fa-glass-cheers me-1"></i>Nightlife
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="interests" value="history" id="history">
+                                        <label class="form-check-label" for="history">
+                                            <i class="fas fa-landmark me-1"></i>History
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="interests" value="relaxation" id="relaxation">
-                                        <label class="form-check-label" for="relaxation">Relaxation</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="interests" value="art" id="art">
-                                        <label class="form-check-label" for="art">Art & Museums</label>
+                                        <label class="form-check-label" for="relaxation">
+                                            <i class="fas fa-spa me-1"></i>Relaxation
+                                        </label>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Accommodation -->
-                        <div class="mb-4">
-                            <label for="accommodation_type" class="form-label fw-bold">
-                                <i class="fas fa-bed me-2"></i>Accommodation Preference
-                            </label>
-                            <select class="form-select" id="accommodation_type" name="accommodation_type" required>
-                                <option value="hotel" selected>Hotel</option>
-                                <option value="hostel">Hostel</option>
-                                <option value="apartment">Apartment/Airbnb</option>
-                                <option value="resort">Resort</option>
-                                <option value="guesthouse">Guesthouse</option>
-                            </select>
+                        <div class="row">
+                            <!-- Accommodation -->
+                            <div class="col-md-6 mb-3">
+                                <label for="accommodation_type" class="form-label fw-bold">
+                                    <i class="fas fa-bed me-1"></i>Accommodation Preference
+                                </label>
+                                <select class="form-select" id="accommodation_type" name="accommodation_type" required>
+                                    <option value="hotel" selected>Hotel</option>
+                                    <option value="hostel">Hostel</option>
+                                    <option value="airbnb">Airbnb/Vacation Rental</option>
+                                    <option value="resort">Resort</option>
+                                    <option value="boutique">Boutique Hotel</option>
+                                </select>
+                            </div>
+
+                            <!-- Transport -->
+                            <div class="col-md-6 mb-4">
+                                <label for="transport_preference" class="form-label fw-bold">
+                                    <i class="fas fa-plane me-1"></i>Transport Preference
+                                </label>
+                                <select class="form-select" id="transport_preference" name="transport_preference" required>
+                                    <option value="flight" selected>Flight</option>
+                                    <option value="train">Train</option>
+                                    <option value="bus">Bus</option>
+                                    <option value="car">Car Rental</option>
+                                    <option value="mixed">Mixed Transport</option>
+                                </select>
+                            </div>
                         </div>
 
-                        <!-- Transport -->
-                        <div class="mb-4">
-                            <label for="transport_preference" class="form-label fw-bold">
-                                <i class="fas fa-car me-2"></i>Transport Preference
-                            </label>
-                            <select class="form-select" id="transport_preference" name="transport_preference" required>
-                                <option value="public_transport" selected>Public Transport</option>
-                                <option value="rental_car">Rental Car</option>
-                                <option value="taxi_uber">Taxi/Uber</option>
-                                <option value="walking">Walking</option>
-                                <option value="bicycle">Bicycle</option>
-                            </select>
-                        </div>
-
-                        <!-- Submit Button -->
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary me-md-2">
-                                <i class="fas fa-arrow-left me-2"></i>Back
-                            </a>
-                            <button type="submit" class="btn btn-primary" id="submitBtn">
-                                <span class="btn-text">
-                                    <i class="fas fa-search me-2"></i>Get AI Recommendations
-                                </span>
-                                <span class="btn-loading d-none">
-                                    <span class="loading-spinner me-2"></span>AI is thinking...
-                                </span>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                                <i class="fas fa-magic me-2"></i>Generate AI Travel Plan
+                                <div class="spinner-border spinner-border-sm ms-2 d-none" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
                             </button>
                         </div>
                     </form>
@@ -183,41 +211,26 @@
 </div>
 
 <script>
-// Set minimum date to today
 document.addEventListener('DOMContentLoaded', function() {
+    // Set minimum date to today
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('start_date').setAttribute('min', today);
     document.getElementById('end_date').setAttribute('min', today);
-
+    
     // Update end date minimum when start date changes
     document.getElementById('start_date').addEventListener('change', function() {
         const startDate = this.value;
         document.getElementById('end_date').setAttribute('min', startDate);
     });
-
-    // Add form submission loading state
-    const form = document.getElementById('preferencesForm');
-    const submitBtn = document.getElementById('submitBtn');
     
-    if (form && submitBtn) {
-        form.addEventListener('submit', function(e) {
-            // Validate at least one interest is selected
-            const interests = document.querySelectorAll('input[name="interests"]:checked');
-            if (interests.length === 0) {
-                e.preventDefault();
-                alert('Please select at least one interest.');
-                return;
-            }
-            
-            // Show loading state
-            const btnText = submitBtn.querySelector('.btn-text');
-            const btnLoading = submitBtn.querySelector('.btn-loading');
-            
-            btnText.classList.add('d-none');
-            btnLoading.classList.remove('d-none');
-            submitBtn.disabled = true;
-        });
-    }
+    // Show loading spinner on form submit
+    document.getElementById('preferencesForm').addEventListener('submit', function() {
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const spinner = submitBtn.querySelector('.spinner-border');
+        
+        spinner.classList.remove('d-none');
+        submitBtn.disabled = true;
+    });
 });
 </script>
 {% endblock %}
