@@ -120,13 +120,47 @@ def preferences():
 
 @app.route('/destinations')
 def destinations():
-    """Display AI-recommended destinations."""
     if 'recommendations' not in session:
         flash('Please fill in your preferences first', 'error')
         return redirect(url_for('preferences'))
 
-    recommendations = session['recommendations']
-    return render_template('destinations.html', recommendations=recommendations)
+    try:
+        recommendations = session['recommendations']
+        if not recommendations or len(recommendations) == 0:
+            flash('Unable to generate AI recommendations. Please check your API key configuration.', 'warning')
+            recommendations = [
+                {
+                    'destination': 'Paris, France',
+                    'reasons': ['Rich cultural heritage', 'World-class cuisine', 'Iconic landmarks'],
+                    'best_time_to_visit': 'April to October',
+                    'estimated_budget': {'accommodation': 80, 'food': 50, 'activities': 40, 'transport': 30},
+                    'highlights': ['Eiffel Tower', 'Louvre Museum', 'Seine River Cruise'],
+                    'image_url': 'https://images.unsplash.com/photo-1549813784-80d5d82d85bb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+                },
+                {
+                    'destination': 'Tokyo, Japan',
+                    'reasons': ['Unique culture blend', 'Amazing food scene', 'Modern technology'],
+                    'best_time_to_visit': 'March to May, September to November',
+                    'estimated_budget': {'accommodation': 90, 'food': 60, 'activities': 50, 'transport': 20},
+                    'highlights': ['Shibuya Crossing', 'Senso-ji Temple', 'Tsukiji Market'],
+                    'image_url': 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+                },
+                {
+                    'destination': 'Barcelona, Spain',
+                    'reasons': ['Stunning architecture', 'Vibrant nightlife', 'Mediterranean cuisine'],
+                    'best_time_to_visit': 'May to September',
+                    'estimated_budget': {'accommodation': 70, 'food': 45, 'activities': 35, 'transport': 25},
+                    'highlights': ['Sagrada Familia', 'Park Güell', 'Las Ramblas'],
+                    'image_url': 'https://images.unsplash.com/photo-1539650116574-75c0c6698ecf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+                }
+            ]
+
+        return render_template('destinations.html', recommendations=recommendations)
+
+    except Exception as e:
+        logging.error(f"Error selecting destination: {e}")
+        flash('An error occurred while generating your destinations. Please try again.', 'error')
+        return redirect(url_for('preferences'))
 
 @app.route('/select_destination/<int:destination_index>')
 def select_destination(destination_index):

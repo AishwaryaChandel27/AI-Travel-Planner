@@ -12,6 +12,13 @@
                         <i class="fas fa-cog me-2"></i>Travel Preferences
                     </h3>
                 </div>
+                {% if not session.get('gemini_available') %}
+                <div class="alert alert-warning mb-0 rounded-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>AI Features Limited:</strong> To get personalized AI recommendations, please set up your Gemini API key in the Secrets tab.
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" class="alert-link">Get your free API key here</a>.
+                </div>
+                {% endif %}
                 <div class="card-body">
                     <form method="POST" action="{{ url_for('preferences') }}" id="preferencesForm">
                         <!-- Destination -->
@@ -159,8 +166,13 @@
                             <a href="{{ url_for('index') }}" class="btn btn-outline-secondary me-md-2">
                                 <i class="fas fa-arrow-left me-2"></i>Back
                             </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-search me-2"></i>Get Recommendations
+                            <button type="submit" class="btn btn-primary" id="submitBtn">
+                                <span class="btn-text">
+                                    <i class="fas fa-search me-2"></i>Get AI Recommendations
+                                </span>
+                                <span class="btn-loading d-none">
+                                    <span class="loading-spinner me-2"></span>AI is thinking...
+                                </span>
                             </button>
                         </div>
                     </form>
@@ -182,6 +194,30 @@ document.addEventListener('DOMContentLoaded', function() {
         const startDate = this.value;
         document.getElementById('end_date').setAttribute('min', startDate);
     });
+
+    // Add form submission loading state
+    const form = document.getElementById('preferencesForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    if (form && submitBtn) {
+        form.addEventListener('submit', function(e) {
+            // Validate at least one interest is selected
+            const interests = document.querySelectorAll('input[name="interests"]:checked');
+            if (interests.length === 0) {
+                e.preventDefault();
+                alert('Please select at least one interest.');
+                return;
+            }
+            
+            // Show loading state
+            const btnText = submitBtn.querySelector('.btn-text');
+            const btnLoading = submitBtn.querySelector('.btn-loading');
+            
+            btnText.classList.add('d-none');
+            btnLoading.classList.remove('d-none');
+            submitBtn.disabled = true;
+        });
+    }
 });
 </script>
 {% endblock %}

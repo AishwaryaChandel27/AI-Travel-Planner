@@ -1,4 +1,3 @@
-
 import json
 import os
 import logging
@@ -47,7 +46,7 @@ def get_destination_recommendations(preferences: dict) -> list[TravelRecommendat
     """Get AI-powered destination recommendations based on user preferences."""
     if not client:
         return get_fallback_recommendations(preferences)
-    
+
     try:
         prompt = f"""
         Based on these travel preferences, recommend 3 destinations:
@@ -56,24 +55,24 @@ def get_destination_recommendations(preferences: dict) -> list[TravelRecommendat
         - Group size: {preferences.get('group_size', 1)}
         - Interests: {', '.join(preferences.get('interests', ['general']))}
         - Country preference: {preferences.get('destination_country', 'Any')}
-        
+
         For each destination, provide:
         1. Destination name
         2. 3 reasons why it fits their preferences
         3. Best time to visit
         4. Estimated budget breakdown
         5. Top highlights
-        
+
         Return as JSON array.
         """
-        
+
         model = client.GenerativeModel('gemini-pro')
         response = model.generate_content(prompt)
-        
+
         # Parse response and create recommendations
         recommendations_data = json.loads(response.text)
         return [TravelRecommendation(**rec) for rec in recommendations_data[:3]]
-        
+
     except Exception as e:
         logging.error(f"Error getting AI recommendations: {e}")
         return get_fallback_recommendations(preferences)
@@ -103,38 +102,38 @@ def get_fallback_recommendations(preferences: dict) -> list[TravelRecommendation
             "highlights": ["Sagrada Familia", "Park Güell", "Las Ramblas"]
         }
     ]
-    
+
     return [TravelRecommendation(**dest) for dest in fallback_destinations]
 
 def generate_itinerary(preferences: dict, destination: str) -> ItineraryPlan:
     """Generate a detailed itinerary for the selected destination."""
     if not client:
         return get_fallback_itinerary(preferences, destination)
-    
+
     try:
         duration = (preferences.get('end_date') - preferences.get('start_date')).days if preferences.get('end_date') and preferences.get('start_date') else 3
-        
+
         prompt = f"""
         Create a detailed {duration}-day itinerary for {destination}:
         - Budget: ${preferences.get('budget', 1000)}
         - Group size: {preferences.get('group_size', 1)}
         - Interests: {', '.join(preferences.get('interests', ['general']))}
-        
+
         Include:
         1. Daily activities with times
         2. Budget breakdown
         3. Restaurant recommendations
         4. Accommodation suggestions
-        
+
         Return as JSON.
         """
-        
+
         model = client.GenerativeModel('gemini-pro')
         response = model.generate_content(prompt)
-        
+
         itinerary_data = json.loads(response.text)
         return ItineraryPlan(**itinerary_data)
-        
+
     except Exception as e:
         logging.error(f"Error generating itinerary: {e}")
         return get_fallback_itinerary(preferences, destination)
@@ -149,20 +148,20 @@ def get_travel_tips(destination: str, preferences: dict) -> list[str]:
             "Pack appropriate clothing for the weather",
             "Keep important documents in a safe place"
         ]
-    
+
     try:
         prompt = f"""
         Provide 5 practical travel tips for visiting {destination}.
         Consider budget type: {preferences.get('budget_type', 'moderate')}
         Return as JSON array of strings.
         """
-        
+
         model = client.GenerativeModel('gemini-pro')
         response = model.generate_content(prompt)
-        
+
         tips = json.loads(response.text)
         return tips[:5]
-        
+
     except Exception as e:
         logging.error(f"Error getting travel tips: {e}")
         return [
