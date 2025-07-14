@@ -3,6 +3,7 @@ from flask import render_template, request, session, redirect, url_for, flash, j
 from datetime import datetime
 import uuid
 import logging
+import json
 
 from app import app, db
 from models import TravelPreference, Itinerary, Booking
@@ -89,7 +90,13 @@ def preferences():
             # Add image URLs and colors to recommendations
             enhanced_recommendations = []
             for rec in recommendations:
-                rec_dict = rec.dict() if hasattr(rec, 'dict') else rec.__dict__
+                if hasattr(rec, 'dict'):
+                    rec_dict = rec.dict()
+                elif hasattr(rec, '__dict__'):
+                    rec_dict = rec.__dict__
+                else:
+                    rec_dict = rec
+                
                 rec_dict['image_url'] = get_destination_image_url(rec_dict['destination'])
                 rec_dict['colors'] = get_destination_colors(rec_dict['destination'])
                 enhanced_recommendations.append(rec_dict)

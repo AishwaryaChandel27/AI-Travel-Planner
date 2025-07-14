@@ -117,3 +117,107 @@
     </div>
 </div>
 {% endblock %}
+{% extends "base.html" %}
+
+{% block title %}AI Travel Planner - Plan Your Perfect Trip{% endblock %}
+
+{% block content %}
+<div class="hero-section text-center py-5">
+    <div class="container">
+        <h1 class="display-4 text-gradient mb-4">
+            <i class="fas fa-plane me-3"></i>AI Travel Planner
+        </h1>
+        <p class="lead mb-4">
+            Create personalized travel itineraries powered by artificial intelligence
+        </p>
+        <a href="{{ url_for('preferences') }}" class="btn btn-primary btn-lg">
+            <i class="fas fa-map-marked-alt me-2"></i>Start Planning
+        </a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="text-center mb-4">How It Works</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <div class="step-number">1</div>
+                                <div class="ms-3">
+                                    <h5>Share Your Preferences</h5>
+                                    <p>Tell us about your budget, interests, and travel style.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <div class="step-number">2</div>
+                                <div class="ms-3">
+                                    <h5>Get AI Recommendations</h5>
+                                    <p>Our AI analyzes your preferences and suggests perfect destinations.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <div class="step-number">3</div>
+                                <div class="ms-3">
+                                    <h5>Receive Detailed Itinerary</h5>
+                                    <p>Get a comprehensive travel plan with activities, restaurants, and tips.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <div class="step-number">4</div>
+                                <div class="ms-3">
+                                    <h5>Book & Travel</h5>
+                                    <p>Use our integrated booking system for flights, hotels, and activities.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="cta-section text-center mt-5 py-5">
+        <h3 class="mb-4">Ready to explore the world?</h3>
+        <a href="{{ url_for('preferences') }}" class="btn btn-primary btn-lg">
+            <i class="fas fa-rocket me-2"></i>Start Your Journey
+        </a>
+    </div>
+</div>
+
+<style>
+.hero-section {
+    background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-info) 100%);
+    color: white;
+    margin: -1.5rem -15px 2rem -15px;
+    padding: 4rem 15px !important;
+}
+
+.step-number {
+    background: var(--bs-primary);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.cta-section {
+    background: var(--bs-light);
+    border-radius: 12px;
+    border: 1px solid var(--bs-border-color);
+}
+</style>
+{% endblock %}
