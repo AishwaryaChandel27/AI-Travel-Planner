@@ -7,6 +7,8 @@ COUNTRY_DATA = {
     # North America
     "United States": {
         "currency": "USD",
+        "currency_symbol": "$",
+        "exchange_rate": 1.0,  # Base currency
         "budget_ranges": {
             "budget": {"min": 80, "max": 150, "description": "Budget traveler - hostels, street food, public transport"},
             "mid_range": {"min": 150, "max": 300, "description": "Mid-range - 3-star hotels, casual dining, mix of transport"},
@@ -40,11 +42,13 @@ COUNTRY_DATA = {
     # Europe
     "United Kingdom": {
         "currency": "GBP",
+        "currency_symbol": "£",
+        "exchange_rate": 0.79,  # Approximate GBP to USD
         "budget_ranges": {
-            "budget": {"min": 50, "max": 90, "description": "Budget traveler - hostels, pub food, public transport"},
-            "mid_range": {"min": 90, "max": 200, "description": "Mid-range - B&Bs, restaurants, trains"},
-            "luxury": {"min": 200, "max": 500, "description": "Luxury - boutique hotels, fine dining, private tours"},
-            "ultra_luxury": {"min": 500, "max": 1200, "description": "Ultra luxury - historic estates, Michelin dining"}
+            "budget": {"min": 40, "max": 70, "description": "Budget traveler - hostels, pub food, public transport"},
+            "mid_range": {"min": 70, "max": 160, "description": "Mid-range - B&Bs, restaurants, trains"},
+            "luxury": {"min": 160, "max": 400, "description": "Luxury - boutique hotels, fine dining, private tours"},
+            "ultra_luxury": {"min": 400, "max": 1000, "description": "Ultra luxury - historic estates, Michelin dining"}
         },
         "popular_destinations": ["London", "Edinburgh", "Bath", "Oxford", "Cambridge", "Liverpool", "Manchester", "Brighton"],
         "best_time": "Late spring to early autumn (May-September)",
@@ -56,11 +60,13 @@ COUNTRY_DATA = {
     
     "France": {
         "currency": "EUR",
+        "currency_symbol": "€",
+        "exchange_rate": 0.92,  # Approximate EUR to USD
         "budget_ranges": {
-            "budget": {"min": 60, "max": 100, "description": "Budget traveler - hostels, bistros, metro"},
-            "mid_range": {"min": 100, "max": 220, "description": "Mid-range - hotels, brasseries, regional trains"},
-            "luxury": {"min": 220, "max": 550, "description": "Luxury - boutique hotels, fine dining, wine tours"},
-            "ultra_luxury": {"min": 550, "max": 1500, "description": "Ultra luxury - châteaux, Michelin stars, private guides"}
+            "budget": {"min": 55, "max": 90, "description": "Budget traveler - hostels, bistros, metro"},
+            "mid_range": {"min": 90, "max": 200, "description": "Mid-range - hotels, brasseries, regional trains"},
+            "luxury": {"min": 200, "max": 500, "description": "Luxury - boutique hotels, fine dining, wine tours"},
+            "ultra_luxury": {"min": 500, "max": 1400, "description": "Ultra luxury - châteaux, Michelin stars, private guides"}
         },
         "popular_destinations": ["Paris", "Nice", "Lyon", "Marseille", "Bordeaux", "Strasbourg", "Toulouse", "Cannes"],
         "best_time": "Late spring to early autumn (May-September)",
@@ -121,11 +127,13 @@ COUNTRY_DATA = {
     # Asia
     "Japan": {
         "currency": "JPY",
+        "currency_symbol": "¥",
+        "exchange_rate": 150.0,  # Approximate JPY to USD
         "budget_ranges": {
-            "budget": {"min": 60, "max": 100, "description": "Budget traveler - hostels, convenience stores, local trains"},
-            "mid_range": {"min": 100, "max": 250, "description": "Mid-range - business hotels, restaurants, JR Pass"},
-            "luxury": {"min": 250, "max": 600, "description": "Luxury - ryokans, kaiseki dining, private tours"},
-            "ultra_luxury": {"min": 600, "max": 1500, "description": "Ultra luxury - exclusive ryokans, private experiences"}
+            "budget": {"min": 8000, "max": 12000, "description": "Budget traveler - hostels, convenience stores, local trains"},
+            "mid_range": {"min": 12000, "max": 25000, "description": "Mid-range - business hotels, restaurants, JR Pass"},
+            "luxury": {"min": 25000, "max": 60000, "description": "Luxury - ryokans, kaiseki dining, private tours"},
+            "ultra_luxury": {"min": 60000, "max": 150000, "description": "Ultra luxury - exclusive ryokans, private experiences"}
         },
         "popular_destinations": ["Tokyo", "Kyoto", "Osaka", "Hiroshima", "Nara", "Nikko", "Hakone", "Takayama"],
         "best_time": "Spring (March-May) and Fall (September-November)",
@@ -137,11 +145,13 @@ COUNTRY_DATA = {
     
     "Thailand": {
         "currency": "THB",
+        "currency_symbol": "฿",
+        "exchange_rate": 36.0,  # Approximate THB to USD
         "budget_ranges": {
-            "budget": {"min": 25, "max": 50, "description": "Budget traveler - hostels, street food, tuk-tuks"},
-            "mid_range": {"min": 50, "max": 120, "description": "Mid-range - hotels, restaurants, tours"},
-            "luxury": {"min": 120, "max": 300, "description": "Luxury - resorts, fine dining, private transfers"},
-            "ultra_luxury": {"min": 300, "max": 800, "description": "Ultra luxury - exclusive resorts, private islands"}
+            "budget": {"min": 800, "max": 1500, "description": "Budget traveler - hostels, street food, tuk-tuks"},
+            "mid_range": {"min": 1500, "max": 3500, "description": "Mid-range - hotels, restaurants, tours"},
+            "luxury": {"min": 3500, "max": 8000, "description": "Luxury - resorts, fine dining, private transfers"},
+            "ultra_luxury": {"min": 8000, "max": 25000, "description": "Ultra luxury - exclusive resorts, private islands"}
         },
         "popular_destinations": ["Bangkok", "Chiang Mai", "Phuket", "Pattaya", "Koh Samui", "Krabi", "Ayutthaya", "Kanchanaburi"],
         "best_time": "Cool season (November-February)",
@@ -153,11 +163,13 @@ COUNTRY_DATA = {
     
     "India": {
         "currency": "INR",
+        "currency_symbol": "₹",
+        "exchange_rate": 83.0,  # Approximate INR to USD
         "budget_ranges": {
-            "budget": {"min": 20, "max": 40, "description": "Budget traveler - guesthouses, street food, trains"},
-            "mid_range": {"min": 40, "max": 100, "description": "Mid-range - hotels, restaurants, private transport"},
-            "luxury": {"min": 100, "max": 300, "description": "Luxury - heritage hotels, fine dining, guided tours"},
-            "ultra_luxury": {"min": 300, "max": 800, "description": "Ultra luxury - palace hotels, exclusive experiences"}
+            "budget": {"min": 1500, "max": 3000, "description": "Budget traveler - guesthouses, street food, trains"},
+            "mid_range": {"min": 3000, "max": 7000, "description": "Mid-range - hotels, restaurants, private transport"},
+            "luxury": {"min": 7000, "max": 20000, "description": "Luxury - heritage hotels, fine dining, guided tours"},
+            "ultra_luxury": {"min": 20000, "max": 60000, "description": "Ultra luxury - palace hotels, exclusive experiences"}
         },
         "popular_destinations": ["Delhi", "Mumbai", "Jaipur", "Agra", "Goa", "Kerala", "Rajasthan", "Varanasi"],
         "best_time": "Winter (October-March)",

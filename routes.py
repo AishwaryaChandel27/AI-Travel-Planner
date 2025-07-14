@@ -8,6 +8,7 @@ from models import TravelPreference, Itinerary, Booking
 from gemini import get_destination_recommendations, generate_itinerary, get_travel_tips
 from travel_service import TravelService
 from country_data import get_country_info, get_popular_destinations, get_budget_ranges
+from destination_images import get_destination_image_url, get_destination_colors
 
 travel_service = TravelService()
 
@@ -59,6 +60,7 @@ def preferences():
             session['preference_id'] = preference.id
             session['destination_country'] = preference.destination_country
             session['budget_type'] = preference.budget_type
+            session['budget_currency'] = country_info.get('currency', 'USD') if country_info else 'USD'
             
             # Get country info and popular destinations
             country_info = get_country_info(preference.destination_country)
@@ -80,7 +82,16 @@ def preferences():
             }
             
             recommendations = get_destination_recommendations(preferences_dict)
-            session['recommendations'] = [rec.dict() for rec in recommendations]
+            
+            # Add image URLs and colors to recommendations
+            enhanced_recommendations = []
+            for rec in recommendations:
+                rec_dict = rec.dict() if hasattr(rec, 'dict') else rec
+                rec_dict['image_url'] = get_destination_image_url(rec_dict['destination'])
+                rec_dict['colors'] = get_destination_colors(rec_dict['destination'])
+                enhanced_recommendations.append(rec_dict)
+            
+            session['recommendations'] = enhanced_recommendations
             
             return redirect(url_for('destinations'))
             

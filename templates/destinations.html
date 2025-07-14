@@ -35,6 +35,12 @@
                                 </small>
                             </div>
                         </div>
+                        {% if recommendation.image_url %}
+                        <div class="card-img-top" style="height: 200px; overflow: hidden;">
+                            <img src="{{ recommendation.image_url }}" alt="{{ recommendation.destination }}" 
+                                 class="w-100 h-100" style="object-fit: cover;">
+                        </div>
+                        {% endif %}
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-8">
