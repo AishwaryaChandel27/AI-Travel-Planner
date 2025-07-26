@@ -1,4 +1,3 @@
-```markdown
 # 🌍 AI Travel Planner
 
 <div align="center">
